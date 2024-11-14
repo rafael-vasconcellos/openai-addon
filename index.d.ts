@@ -20,8 +20,6 @@ declare var common: {
     fetch: (...args: any) => any
 }
 
-declare var $: CallableFunction & { 
-    ready(callback: CallableFunction): unknown
-}
+declare var $: CallableFunction
 
 declare var ui: any;
