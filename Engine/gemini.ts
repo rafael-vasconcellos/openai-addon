@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GoogleGenerativeAIResponseError, PromptFeedback } from "@google/generative-ai";
 import { systemPrompt, userPrompt } from "./Prompt";
+import { CustomEngine } from "./custom";
 
 
 interface IGoogleFilterBlock { 
@@ -26,10 +27,8 @@ const safetySettings = [
     }
 ]
 
-export class GeminiEngine extends TranslatorEngine { 
-    private api_key?: string
-    private model_name: string = "gemini-1.5-flash"
-    private target_language: string = "English - US"
+export class GeminiEngine extends CustomEngine { 
+    public model_name: string = "gemini-1.5-flash"
 
     constructor() { 
         super({ 
@@ -84,8 +83,7 @@ export class GeminiEngine extends TranslatorEngine {
         })
     }
 
-
-    private async fetch(texts: string[]) { 
+    public async fetch(texts: string[]) { 
         const GoogleClient = new GoogleGenerativeAI(this.api_key as string)
         const generativeModel = GoogleClient.getGenerativeModel({ 
             model: this.model_name,
@@ -109,11 +107,5 @@ export class GeminiEngine extends TranslatorEngine {
         }
     }
 
-    translate(text: string[], options: any): void { //console.log(options)
-        if (!this.api_key) { return alert('No API key specified!') }
-
-        //
-    }
 
 }
-
