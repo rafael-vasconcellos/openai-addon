@@ -19,6 +19,6 @@ declare type TranslationEngineOptionFormUpdater = {
     inlinetitle?: string;
     type?: string;
     titleMap?: {[id: string]: string};
-    onChange?: function;
+    onChange?: (evt) => any;
     items?: {[id: string]: any};
 }
