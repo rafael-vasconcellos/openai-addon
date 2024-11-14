@@ -1,3 +1,17 @@
+declare type TranslationEngineOptionForm = {
+    schema: {[id: string]: TranslationEngineOptionFormSchema};
+    form: Array<TranslationEngineOptionFormUpdater>;
+}
+
+declare type TranslationEngineOptionFormSchema<Type> = {
+    type: typeof Type;
+    title?: string;
+    description?: string;
+    default: Type;
+    required?: boolean;
+    enum?: any;
+}
+
 declare type TranslationEngineOptionFormUpdater = {
     key?: string;
     title?: string;
@@ -7,9 +21,4 @@ declare type TranslationEngineOptionFormUpdater = {
     titleMap?: {[id: string]: string};
     onChange?: function;
     items?: {[id: string]: any};
-}
-
-declare type TranslationEngineOptionForm = {
-    schema: {[id: string]: TranslationEngineOptionSchema};
-    form: Array<TranslationEngineOptionFormUpdater>;
 }

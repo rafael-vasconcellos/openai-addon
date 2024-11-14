@@ -1,12 +1,3 @@
-declare type TranslationEngineOptionSchema<Type> = {
-    type: typeof Type;
-    title?: string;
-    description?: string;
-    default: Type;
-    required?: boolean;
-    enum?: any;
-}
-
 declare type TranslatorEngineOptions = {
     onAfterLoading: (result: any) => any | Promise<any>;
     onError: (reason: any) => any | Promise<any>;
@@ -19,7 +10,7 @@ declare type TranslatorEngineOptions = {
 declare type TranslationEngineOptions = {
     id?: string;
     name?: string;
-    author: string;
+    author?: string;
     version: string;
     description?: string;
     batchDelay?: number;
@@ -28,6 +19,6 @@ declare type TranslationEngineOptions = {
     mode?: string;
     targetUrl?: string;
     languages?: {[id: string]: string};
-    optionsForm: TranslationEngineOptionForm;
+    optionsForm?: TranslationEngineOptionForm;
 }
 

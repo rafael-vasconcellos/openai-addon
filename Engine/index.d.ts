@@ -1,5 +1,5 @@
 declare class TranslatorEngine {
-    constructor(options: any);
+    constructor(options: TranslationEngineOptions);
     update(id: string, value: any);
     optionsForm: TranslationEngineOptionForm;
     init(): void;
