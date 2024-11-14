@@ -1,6 +1,14 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GoogleGenerativeAIResponseError, PromptFeedback } from "@google/generative-ai";
 import { systemPrompt, userPrompt } from "./Prompt";
 
+
+interface IGoogleFilterBlock { 
+    text: CallableFunction // throws the error
+    functionCall: CallableFunction
+    functionCalls: CallableFunction
+    usageMetadata: Record<string, unknown>
+    promptFeedback: PromptFeedback
+}
 
 const safetySettings = [
     {
@@ -87,16 +95,24 @@ export class GeminiEngine extends TranslatorEngine {
             { text: userPrompt(texts) },
         ]
 
-        return (await generativeModel.generateContent({ 
+        const response = (await generativeModel.generateContent({ 
             contents: [{ role: "user", parts }],
             generationConfig: { temperature: 0 },
             safetySettings,
-        }))
-        .response.text()
+        })
+        .catch( (e: GoogleGenerativeAIResponseError<IGoogleFilterBlock>) => console.log(e.message))
+        )?.response?.text()?.replace(/.*(\[.*?\]).*/, "$1")
+
+        if (response) { 
+            try { return JSON.parse(response) }
+            catch (e) { console.log(e) }
+        }
     }
 
-    translate(text: string[], options: any): void { console.log(options)
+    translate(text: string[], options: any): void { //console.log(options)
         if (!this.api_key) { return alert('No API key specified!') }
+
+        //
     }
 
 }
