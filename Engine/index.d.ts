@@ -46,7 +46,7 @@ declare class TranslatorEngine {
     targetUrls: Array<string>;
 
     // Variables
-    [id: string]: any;
+    //[id: string]: any;
 }
 
 
