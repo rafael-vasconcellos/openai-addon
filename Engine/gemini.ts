@@ -44,6 +44,14 @@ export class GeminiEngine extends CustomEngine {
                         description: "Insert your Google's gemini API key",
                         required: true
                     },
+                    api_type: { 
+                        type: "string",
+                        title: "Api type",
+                        description: "Select your api type",
+                        default: "free",
+                        required: false,
+                        enum: ["free", "pro"]
+                    },
                     target_language: { 
                         type: "string",
                         title: "Target language",
@@ -75,6 +83,11 @@ export class GeminiEngine extends CustomEngine {
                         key: "target_language",
                         onChange: (evt: Event & { target: HTMLInputElement }) => { 
                             if (evt.target?.value) { this.target_language = evt.target.value }
+                        },
+                    }, { 
+                        key: "api_type",
+                        onChange: (evt: Event & { target: HTMLInputElement }) => { 
+                            if (evt.target?.value) { this.api_type = evt.target.value as any }
                         },
                     }, 
                 ]
