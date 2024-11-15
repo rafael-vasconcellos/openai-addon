@@ -3,6 +3,8 @@ import { systemPrompt, userPrompt } from "./Prompt";
 import { CustomEngine } from "./custom";
 
 
+const thisAddon = <Addon> (this as unknown)
+
 interface IGoogleFilterBlock { 
     text: CallableFunction // throws the error
     functionCall: CallableFunction
@@ -32,10 +34,11 @@ export class GeminiEngine extends CustomEngine {
 
     constructor() { 
         super({ 
-            id: "gemini-addon",
-            name: "Gemini",
-            description: "Google's gemini support for Translator++.",
-            version: "1.0.0",
+            id: thisAddon.package.name,
+            name: thisAddon.package.title,
+            description: thisAddon.package.description,
+            version: thisAddon.package.version,
+            author: thisAddon.package.author?.name ?? thisAddon.package.author as unknown,
             optionsForm: { 
                 schema: { 
                     api_key: { 
