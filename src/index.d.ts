@@ -3,6 +3,7 @@ declare module "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/dist/i
 }
 
 declare type Addon = {
+    optionsForm: TranslationEngineOptionForm
     package: {
         name: string,
         author: {
@@ -10,6 +11,7 @@ declare type Addon = {
         },
         version: string,
         description: string,
+        title: string
     };
     getPathRelativeToRoot: () => string;
 }

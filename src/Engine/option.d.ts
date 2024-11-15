@@ -10,7 +10,7 @@ declare type TranslatorEngineOptions = {
 declare type TranslationEngineOptions = {
     id?: string;
     name?: string;
-    author?: string;
+    author: string;
     version: string;
     description?: string;
     batchDelay?: number;
