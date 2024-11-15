@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GoogleGenerativeAIResponseError, PromptFeedback } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GoogleGenerativeAIResponseError, PromptFeedback } from "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/dist/index.min.js";
 import { systemPrompt, userPrompt } from "./Prompt";
 import { CustomEngine } from "./custom";
 
