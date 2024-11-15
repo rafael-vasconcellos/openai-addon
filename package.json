@@ -1,6 +1,8 @@
 {
   "name": "gemini-addon",
   "title": "Gemini",
+  "description": "Google's gemini support for Translator++.",
+  "author": "",
   "version": "1.0.0",
   "main": "main.js",
   "autoload" : false,
@@ -12,9 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
   "license": "MIT",
-  "description": "Google's gemini support for Translator++.",
   "devDependencies": {
     "typescript": "^5.6.3"
   },
