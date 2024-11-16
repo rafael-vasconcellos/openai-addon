@@ -12,8 +12,6 @@ const { CustomEngine } = require("www/addons/gemini/Engine/custom.js") as ICusto
 
 
 
-const thisAddon = <Addon> (this as unknown)
-
 interface IGoogleFilterBlock { 
     text: CallableFunction // throws the error
     functionCall: CallableFunction
@@ -41,7 +39,7 @@ const safetySettings = [
 class GeminiEngine extends CustomEngine { 
     public model_name: string = "gemini-1.5-flash"
 
-    constructor() { 
+    constructor(thisAddon: Addon) { 
         super({ 
             id: thisAddon.package.name,
             name: thisAddon.package.title,
@@ -149,4 +147,6 @@ class GeminiEngine extends CustomEngine {
 }
 
 
-module.exports = { GeminiEngine }
+const GeminiModule = { GeminiEngine }
+export type IGeminiModule = typeof GeminiModule
+module.exports = GeminiModule

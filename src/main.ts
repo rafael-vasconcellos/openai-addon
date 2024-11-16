@@ -1,9 +1,10 @@
+import { IGeminiModule } from "./Engine/gemini"
 try {
-const { GeminiEngine } = require("www/addons/gemini/Engine/gemini.js");
+const { GeminiEngine } = require("www/addons/gemini/Engine/gemini.js") as IGeminiModule;
 
 
 const thisAddon = <Addon> (this as unknown)
-const engine = new GeminiEngine()
+const engine = new GeminiEngine(thisAddon)
 trans["gemini-addon"] = engine
 //thisAddon.optionsForm = engine.optionsForm
 
