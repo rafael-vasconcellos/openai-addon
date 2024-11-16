@@ -46,15 +46,24 @@ class CustomEngine {
 
     protected prepare(texts: string[]) { return this.formatInput(texts, 25) }
 
-    public translate(text: string[], options: any): void { //console.log(options)
+    public translate(texts: string[], options: TranslatorOptions): void { 
         if (!this.options.api_key) { return alert('No API key specified!') }
 
-        const formated_texts = this.prepare(text)
-        console.log("Batch size: " + formated_texts.length + "\n\n")
-        formated_texts.forEach(requests => { 
-            console.log("request size: " + requests.length)
-            if (requests[0] as any instanceof Array) { console.log("text size: " + requests[0]?.length) }
-        })
+        alert(texts.length)
+        // @ts-ignore
+        if (this.started) { return }
+        // @ts-ignore
+        this.started = true
+        const mock_translation = Array(texts.length).fill('b')
+        const mock_result = {
+			sourceText: texts.join(),
+			translationText: mock_translation.join(),
+			source: texts,
+			translation: mock_translation
+		};
+
+        options.onAfterLoading(mock_result)
+        options.always()
     }
 
 }

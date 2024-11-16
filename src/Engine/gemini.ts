@@ -124,19 +124,6 @@ class GeminiClient extends CustomEngine {
         }
     }
 
-    protected prepare(texts: string[]) { 
-        if (this.options.api_type === "free") { 
-            const request_batches: any[] = this.formatInput(texts, 375)
-            request_batches.forEach( (batch, i) => { 
-                request_batches[i] = this.formatInput(batch, 25)
-            })
-
-            return request_batches
-        }
-
-        return super.prepare(texts)
-    }
-
 
 }
 
