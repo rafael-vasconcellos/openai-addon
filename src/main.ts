@@ -6,7 +6,7 @@ const { GeminiClient } = require("www/addons/gemini/Engine/gemini.js") as IGemin
 const thisAddon = <Addon> (this as unknown)
 const client = new GeminiClient(thisAddon)
 trans["gemini-addon"] = client.getEngine()
-//thisAddon.optionsForm = engine.optionsForm
+thisAddon.optionsForm = client.getEngine().optionsForm
 
 $(document).ready(function() {
 	client.init();

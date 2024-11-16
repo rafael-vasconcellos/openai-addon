@@ -81,36 +81,30 @@ class GeminiClient extends CustomEngine {
                 form: [ 
                     { 
                         key: "api_key",
-                        onChange: (evt: Event & { target: HTMLInputElement }) => { 
+                        /* onChange: (evt: Event & { target: HTMLInputElement }) => { 
                             if (evt.target?.value) { this.api_key = evt.target.value }
-                        }
+                        } */
                     }, { 
-                        key: "model_name",
-                        onChange: (evt: Event & { target: HTMLInputElement }) => { 
-                            if (evt.target?.value) { this.model_name = evt.target.value }
-                        },
+                        key: "model_name"
                     }, { 
-                        key: "target_language",
-                        onChange: (evt: Event & { target: HTMLInputElement }) => { 
-                            if (evt.target?.value) { this.target_language = evt.target.value }
-                        },
+                        key: "target_language"
                     }, { 
-                        key: "api_type",
-                        onChange: (evt: Event & { target: HTMLInputElement }) => { 
-                            if (evt.target?.value) { this.api_type = evt.target.value as any }
-                        },
-                    }, 
-                ]
+                        key: "api_type"
+                    }
+                ],
+                onChange: (elm: HTMLInputElement, key: string, value: unknown) => {
+                    this.update(key, value);
+                }
             }
 
         })
     }
 
     public async fetcher(texts: string[]) { 
-        const GoogleClient = new GoogleGenerativeAI(this.api_key as string)
+        const GoogleClient = new GoogleGenerativeAI(this.options.api_key as string)
         const generativeModel = GoogleClient.getGenerativeModel({ 
             model: this.model_name,
-            systemInstruction: systemPrompt(this.target_language)
+            systemInstruction: systemPrompt(this.options.target_language)
         })
         const parts = [
             { text: userPrompt(texts) },
@@ -131,7 +125,7 @@ class GeminiClient extends CustomEngine {
     }
 
     protected prepare(texts: string[]) { 
-        if (this.api_type === "free") { 
+        if (this.options.api_type === "free") { 
             const request_batches: any[] = this.formatInput(texts, 375)
             request_batches.forEach( (batch, i) => { 
                 request_batches[i] = this.formatInput(batch, 25)

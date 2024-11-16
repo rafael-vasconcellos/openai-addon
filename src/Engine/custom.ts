@@ -1,7 +1,15 @@
+interface IEngineOptions { 
+    api_key: string | null
+    target_language: string
+    api_type: "free" | "pro"
+}
+
 class CustomEngine { 
-    public api_key?: string
-    public target_language: string = "English - US"
-    public api_type: "free" | "pro" = "free"
+    public options: IEngineOptions = { 
+        api_key: null,
+        target_language: "English - US",
+        api_type: "free"
+    }
     private engine: TranslatorEngine
 
     constructor(options: TranslationEngineOptions) { 
@@ -9,6 +17,12 @@ class CustomEngine {
         this.engine.translate = this.translate
     }
 
+    public update(option: string, value: any) { 
+        if (option in this.options) { 
+            this.options[option as keyof IEngineOptions] = value
+            this.getEngine().update(option, value)
+        }
+    }
     public getEngine() { return this.engine }
     public init() { this.engine.init() }
 
@@ -27,7 +41,7 @@ class CustomEngine {
     protected prepare(texts: string[]) { return this.formatInput(texts, 25) }
 
     public translate(text: string[], options: any): void { //console.log(options)
-        if (!this.api_key) { return alert('No API key specified!') }
+        if (!this.options.api_key) { return alert('No API key specified!') }
 
         const formated_texts = this.prepare(text)
         console.log("Batch size: " + formated_texts.length + "\n\n")
