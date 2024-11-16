@@ -6,15 +6,15 @@ interface IEngineOptions {
 
 class CustomEngine { 
     public options: IEngineOptions = { 
-        api_key: null,
-        target_language: "English - US",
-        api_type: "free"
+        api_key: this.getEngine()?.api_key ?? null,
+        target_language: this.getEngine()?.target_language ?? "English - US",
+        api_type: this.getEngine()?.api_type ?? "free"
     }
-    private engine: TranslatorEngine
+    private engine: TranslatorEngine & Partial<IEngineOptions>
 
     constructor(engineOptions: TranslationEngineOptions) { 
         this.engine = new TranslatorEngine(engineOptions)
-        this.engine.translate = this.translate
+        this.engine.translate = this.translate.bind(this)
         this.engine.abortTranslation = this.abort
         this.engine.abort = this.abort
         this.engine.pause = this.pause
@@ -23,7 +23,6 @@ class CustomEngine {
 
     public update(option: string, value: any) { 
         if (option in this.options) { 
-            this.options[option as keyof IEngineOptions] = value
             this.getEngine().update(option, value)
         }
     }
