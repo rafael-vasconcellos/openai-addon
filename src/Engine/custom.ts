@@ -15,6 +15,10 @@ class CustomEngine {
     constructor(options: TranslationEngineOptions) { 
         this.engine = new TranslatorEngine(options)
         this.engine.translate = this.translate
+        this.engine.abortTranslation = this.abort
+        this.engine.abort = this.abort
+        this.engine.pause = this.pause
+        this.engine.resume = this.resume
     }
 
     public update(option: string, value: any) { 
@@ -25,6 +29,9 @@ class CustomEngine {
     }
     public getEngine() { return this.engine }
     public init() { this.engine.init() }
+    public abort() {}
+    public pause() {}
+    public resume() {}
 
     public async fetcher(texts: string[]) {}
 
