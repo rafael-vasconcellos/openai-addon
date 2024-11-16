@@ -36,7 +36,7 @@ const safetySettings = [
     }
 ]
 
-class GeminiEngine extends CustomEngine { 
+class GeminiClient extends CustomEngine { 
     public model_name: string = "gemini-1.5-flash"
 
     constructor(thisAddon: Addon) { 
@@ -147,6 +147,6 @@ class GeminiEngine extends CustomEngine {
 }
 
 
-const GeminiModule = { GeminiEngine }
+const GeminiModule = { GeminiClient }
 export type IGeminiModule = typeof GeminiModule
 module.exports = GeminiModule
