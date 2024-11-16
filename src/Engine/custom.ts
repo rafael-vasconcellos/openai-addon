@@ -1,13 +1,18 @@
-class CustomEngine extends TranslatorEngine { 
+class CustomEngine { 
     public api_key?: string
     public target_language: string = "English - US"
     public api_type: "free" | "pro" = "free"
+    private engine: TranslatorEngine
 
     constructor(options: TranslationEngineOptions) { 
-        super(options)
+        this.engine = new TranslatorEngine(options)
+        this.engine.translate = this.translate
     }
 
-    public async fetch(texts: string[]) {}
+    public getEngine() { return this.engine }
+    public init() { this.engine.init() }
+
+    public async fetcher(texts: string[]) {}
 
     protected formatInput(texts: string[], n: number) { 
         const result = []

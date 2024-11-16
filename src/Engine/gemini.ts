@@ -106,7 +106,7 @@ class GeminiEngine extends CustomEngine {
         })
     }
 
-    public async fetch(texts: string[]) { 
+    public async fetcher(texts: string[]) { 
         const GoogleClient = new GoogleGenerativeAI(this.api_key as string)
         const generativeModel = GoogleClient.getGenerativeModel({ 
             model: this.model_name,

@@ -4,16 +4,12 @@ const { GeminiEngine } = require("www/addons/gemini/Engine/gemini.js") as IGemin
 
 
 const thisAddon = <Addon> (this as unknown)
-const engine = new GeminiEngine(thisAddon)
-trans["gemini-addon"] = engine
+const gemini = new GeminiEngine(thisAddon)
+trans["gemini-addon"] = gemini.getEngine()
 //thisAddon.optionsForm = engine.optionsForm
 
 $(document).ready(function() {
-	ui.onReady(function() {
-		engine.init();
-		alert('dada')
-	});
-	alert('dada')
+	gemini.init();
 });
 
 } catch (e) { alert(e) }
