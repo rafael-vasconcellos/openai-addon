@@ -1,3 +1,12 @@
+declare type TranslatorOptions = {
+    onAfterLoading: (result: any) => any | Promise<any>;
+    onError: (reason: any) => any | Promise<any>;
+    always: () => any | Promise<any>;
+    progress: (perc: number) => void;
+    sl: string;
+    tl: string;
+}
+
 declare class TranslatorEngine {
     constructor(options: TranslationEngineOptions);
     update(id: string, value: any);
@@ -34,7 +43,7 @@ declare class TranslatorEngine {
      */
     save(): void;
     str2Num(num): string;
-    translate(text: Array<string>, options): void;
+    translate(text: Array<string>, options: TranslatorOptions): void;
     unescapeCharacter(sentence): string;
 
     abort(): void;
