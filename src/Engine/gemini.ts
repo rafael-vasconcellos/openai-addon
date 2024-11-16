@@ -1,6 +1,15 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GoogleGenerativeAIResponseError, PromptFeedback } from "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/dist/index.min.js";
-import { systemPrompt, userPrompt } from "./Prompt";
-import { CustomEngine } from "./custom";
+import { PromptFeedback, GoogleGenerativeAIResponseError } from "@google/generative-ai"
+import { ICustomEngineModule } from './custom'
+import { IPromptModule } from './Prompt'
+const { 
+    GoogleGenerativeAI, 
+    HarmCategory, 
+    HarmBlockThreshold, 
+} = require("www/addons/gemini/Engine/google-generative-ai.js") as typeof import('@google/generative-ai');
+const { systemPrompt, userPrompt } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
+const { CustomEngine } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
+
+
 
 
 const thisAddon = <Addon> (this as unknown)
@@ -29,7 +38,7 @@ const safetySettings = [
     }
 ]
 
-export class GeminiEngine extends CustomEngine { 
+class GeminiEngine extends CustomEngine { 
     public model_name: string = "gemini-1.5-flash"
 
     constructor() { 
@@ -138,3 +147,6 @@ export class GeminiEngine extends CustomEngine {
 
 
 }
+
+
+module.exports = { GeminiEngine }

@@ -1,4 +1,4 @@
-export class CustomEngine extends TranslatorEngine { 
+class CustomEngine extends TranslatorEngine { 
     public api_key?: string
     public target_language: string = "English - US"
     public api_type: "free" | "pro" = "free"
@@ -34,3 +34,8 @@ export class CustomEngine extends TranslatorEngine {
 
 }
 
+
+const CustomEngineModule = { CustomEngine }
+export type ICustomEngineModule = typeof CustomEngineModule
+
+module.exports = CustomEngineModule

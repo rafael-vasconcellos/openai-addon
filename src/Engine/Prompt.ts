@@ -1,4 +1,4 @@
-export const systemPrompt = (targetLanguage: string) => `
+const systemPrompt = (targetLanguage: string) => `
     You are an expert Eroge Game translator who translates Japanese text to ${targetLanguage}. 
     You are going to be translating text from a videogame. 
     I will give you lines of text in a Array format, and you must translate each line to the best of your ability. 
@@ -15,6 +15,12 @@ export const systemPrompt = (targetLanguage: string) => `
 `
 
 
-export const userPrompt = (text: string[]) => `
+const userPrompt = (text: string[]) => `
     Now translate this: [${text.join(",")}]
 `
+
+
+const PromptModule = { systemPrompt, userPrompt }
+export type IPromptModule = typeof PromptModule
+
+module.exports = PromptModule

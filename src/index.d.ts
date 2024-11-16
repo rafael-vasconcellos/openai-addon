@@ -1,7 +1,3 @@
-declare module "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/dist/index.min.js" {
-    export * from "@google/generative-ai";
-}
-
 declare type Addon = {
     optionsForm: TranslationEngineOptionForm
     package: {
