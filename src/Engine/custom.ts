@@ -12,8 +12,8 @@ class CustomEngine {
     }
     private engine: TranslatorEngine
 
-    constructor(options: TranslationEngineOptions) { 
-        this.engine = new TranslatorEngine(options)
+    constructor(engineOptions: TranslationEngineOptions) { 
+        this.engine = new TranslatorEngine(engineOptions)
         this.engine.translate = this.translate
         this.engine.abortTranslation = this.abort
         this.engine.abort = this.abort
