@@ -1,6 +1,7 @@
 declare type TranslationEngineOptionForm = {
     schema: {[id: string]: TranslationEngineOptionFormSchema};
     form: Array<TranslationEngineOptionFormUpdater>;
+    onChange: CallableFunction
 }
 
 declare type TranslationEngineOptionFormSchema<Type> = {

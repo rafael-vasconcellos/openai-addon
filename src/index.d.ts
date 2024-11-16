@@ -1,5 +1,5 @@
 declare type Addon = {
-    optionsForm: TranslationEngineOptionForm
+    optionsForm: TranslationEngineOptionForm | TranslationEngineOptionForm['schema']
     package: {
         name: string,
         author: {
