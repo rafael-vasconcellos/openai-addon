@@ -101,10 +101,10 @@ class GeminiClient extends CustomEngine {
     }
 
     public async fetcher(texts: string[]) { 
-        const GoogleClient = new GoogleGenerativeAI(this.options.api_key as string)
+        const GoogleClient = new GoogleGenerativeAI(this.api_key as string)
         const generativeModel = GoogleClient.getGenerativeModel({ 
             model: this.model_name,
-            systemInstruction: systemPrompt(this.options.target_language)
+            systemInstruction: systemPrompt(this.target_language)
         })
         const parts = [
             { text: userPrompt(texts) },

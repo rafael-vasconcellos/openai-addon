@@ -1,16 +1,5 @@
-interface IEngineOptions { 
-    api_key: string | null
-    target_language: string
-    api_type: "free" | "pro"
-}
-
 class CustomEngine { 
-    public options: IEngineOptions = { 
-        api_key: this.getEngine()?.api_key ?? null,
-        target_language: this.getEngine()?.target_language ?? "English - US",
-        api_type: this.getEngine()?.api_type ?? "free"
-    }
-    private engine: TranslatorEngine & Partial<IEngineOptions>
+    private engine: TranslatorEngine
 
     constructor(engineOptions: TranslationEngineOptions) { 
         this.engine = new TranslatorEngine(engineOptions)
@@ -21,10 +10,12 @@ class CustomEngine {
         this.engine.resume = this.resume
     }
 
+    get api_key() { return this.getEngine()?.getOptions('api_key') ?? null }
+    get target_language() { return this.getEngine()?.getOptions('target_language') ?? "English - US" }
+    get api_type() { return this.getEngine()?.getOptions('api_type') ?? "free" }
+
     public update(option: string, value: any) { 
-        if (option in this.options) { 
-            this.getEngine().update(option, value)
-        }
+        this.getEngine().update(option, value)
     }
     public getEngine() { return this.engine }
     public init() { this.engine.init() }
@@ -47,7 +38,7 @@ class CustomEngine {
     protected prepare(texts: string[]) { return this.formatInput(texts, 25) }
 
     public translate(texts: string[], options: TranslatorOptions): void { 
-        if (!this.options.api_key) { return alert('No API key specified!') }
+        if (!this.api_key) { return alert('No API key specified!') }
 
         alert(texts.length)
         // @ts-ignore
