@@ -134,13 +134,20 @@ class GeminiClient extends CustomEngine {
 
     protected async execute(texts: string[]) { 
         if (this.api_type === "free") { 
+            const start_time = performance.now()
             const batches = this.formatInput(texts, 25) as any[]
             for (let i=0; i<batches.length; i++) { 
-                const translated_batch = await this.fetcher(batches[i])
-                batches.splice(i, 1, ...translated_batch)
-                await new Promise(res => setTimeout(res, 1000))
+                if (batches[i] instanceof Array) { 
+                    const translated_batch = await this.fetcher(batches[i])
+                    batches.splice(i, 1, ...translated_batch)
+                    await new Promise(res => setTimeout(res, 1000))
+                }
             }
 
+            const end_time = performance.now()
+            const exec_time = end_time - start_time
+            const remaining_time = Math.max(0, (1000*60) - exec_time);
+            await new Promise(res => setTimeout(res, remaining_time))
             return {
                 sourceText: texts.join(),
                 translationText: batches.join(),

@@ -35,20 +35,21 @@ class CustomEngine {
         .finally(options.always())
     }
 
-    private async mockTranslate(texts: string[]) { 
+    private mockTranslate(texts: string[]) { return new Promise(resolve => {
         alert(texts.length)
         // @ts-ignore
-        if (this.started) { return }
-        // @ts-ignore
-        this.started = true
-        const mock_translation = Array(texts.length).fill('b')
-        return {
-			sourceText: texts.join(),
-			translationText: mock_translation.join(),
-			source: texts,
-			translation: mock_translation
-		};
-    }
+        if (!this.started) { 
+            // @ts-ignore
+            this.started = true
+            const mock_translation = Array(texts.length).fill('b')
+            resolve({
+                sourceText: texts.join(),
+                translationText: mock_translation.join(),
+                source: texts,
+                translation: mock_translation
+            })
+        }
+    })}
 
     protected async execute(texts: string[]) { 
         const translated_texts = await this.fetcher(texts)
@@ -62,14 +63,14 @@ class CustomEngine {
         if (result) { return result }
     }
 
-    protected formatInput(texts: string[], n: number): string[][] { 
+    protected formatInput(texts: string[], n: number): (string | string[])[] { 
         const result = []
         for (let i=0; i<texts.length; i+=n) { 
             const batch = texts.slice(i, i+n)
             result.push(batch)
         }
 
-        return result
+        return result.length>1? result : result[0]
     }
 
 }
