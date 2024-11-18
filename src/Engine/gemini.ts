@@ -37,7 +37,7 @@ const safetySettings = [
 ]
 
 class GeminiClient extends CustomEngine { 
-    public model_name: string = "gemini-1.5-flash"
+    get model_name() { return this.getEngine()?.getOptions('model_name') ?? "gemini-1.5-flash" }
 
     constructor(thisAddon: Addon) { 
         super({ 
@@ -85,14 +85,18 @@ class GeminiClient extends CustomEngine {
                             if (evt.target?.value) { this.api_key = evt.target.value }
                         } */
                     }, { 
+                        key: "api_type"
+                    }, { 
                         key: "model_name"
                     }, { 
                         key: "target_language"
-                    }, { 
-                        key: "api_type"
-                    }
+                    }, 
                 ],
-                onChange: (elm: HTMLInputElement, key: string, value: unknown) => {
+                onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
+                    if (key === "api_type") { 
+                        this.update("batchDelay", value==="free"? 60 : 1)
+                        this.update("maxRequestLength", value==="free"? 375 : 25)
+                    }
                     this.update(key, value);
                 }
             }
@@ -123,6 +127,8 @@ class GeminiClient extends CustomEngine {
             catch (e) { console.log(e) }
         }
     }
+
+    //
 
 
 }

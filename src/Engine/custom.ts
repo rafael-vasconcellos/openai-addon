@@ -23,23 +23,16 @@ class CustomEngine {
     public pause() {}
     public resume() {}
 
-    public async fetcher(texts: string[]) {}
-
-    protected formatInput(texts: string[], n: number) { 
-        const result = []
-        for (let i=0; i<texts.length; i+=n) { 
-            const batch = texts.slice(i, i+n)
-            result.push(batch)
-        }
-
-        return result
+    public async fetcher(texts: string[]): Promise<string[] | void> { 
+        throw new Error('Non implemented method!')
     }
-
-    protected prepare(texts: string[]) { return this.formatInput(texts, 25) }
 
     public translate(texts: string[], options: TranslatorOptions): void { 
         if (!this.api_key) { return alert('No API key specified!') }
+        this.mockTranslate(texts, options)
+    }
 
+    private mockTranslate(texts: string[], options: TranslatorOptions) { 
         alert(texts.length)
         // @ts-ignore
         if (this.started) { return }
@@ -55,6 +48,30 @@ class CustomEngine {
 
         options.onAfterLoading(mock_result)
         options.always()
+    }
+
+    protected async execute(texts: string[], options: TranslatorOptions) { 
+        const translated_texts = await this.fetcher(texts).catch(e => e)
+        const result = translated_texts? {
+			sourceText: texts.join(),
+			translationText: translated_texts.join(),
+			source: texts,
+			translation: translated_texts
+		} : null
+
+        if (result) { options.onAfterLoading(result) }
+        else { options.onError(translated_texts) }
+        options.always()
+    }
+
+    protected formatInput(texts: string[], n: number): string[][] { 
+        const result = []
+        for (let i=0; i<texts.length; i+=n) { 
+            const batch = texts.slice(i, i+n)
+            result.push(batch)
+        }
+
+        return result
     }
 
 }
