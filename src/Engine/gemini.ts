@@ -46,6 +46,7 @@ class GeminiClient extends CustomEngine {
             description: thisAddon.package.description,
             version: thisAddon.package.version,
             author: thisAddon.package.author?.name ?? thisAddon.package.author as unknown,
+            maxRequestLength: 375,
             optionsForm: { 
                 schema: { 
                     api_key: { 
@@ -94,7 +95,7 @@ class GeminiClient extends CustomEngine {
                 ],
                 onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
                     if (key === "api_type") { 
-                        this.update("batchDelay", value==="free"? 60 : 1)
+                        //this.update("batchDelay", value==="free"? 60 : 1)
                         this.update("maxRequestLength", value==="free"? 375 : 25)
                     }
                     this.update(key, value);
@@ -124,11 +125,31 @@ class GeminiClient extends CustomEngine {
 
         if (response) { 
             try { return JSON.parse(response) }
-            catch (e) { console.log(e) }
+            catch (e) { 
+                console.log(e) 
+                throw new Error("Fetch failed!")
+            }
         }
     }
 
-    //
+    protected async execute(texts: string[]) { 
+        if (this.api_type === "free") { 
+            const batches = this.formatInput(texts, 25) as any[]
+            for (let i=0; i<batches.length; i++) { 
+                const translated_batch = await this.fetcher(batches[i])
+                batches.splice(i, 1, ...translated_batch)
+                await new Promise(res => setTimeout(res, 1000))
+            }
+
+            return {
+                sourceText: texts.join(),
+                translationText: batches.join(),
+                source: texts,
+                translation: batches
+            }
+
+        } else { return super.execute(texts) }
+    }
 
 
 }

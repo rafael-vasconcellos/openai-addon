@@ -29,29 +29,29 @@ class CustomEngine {
 
     public translate(texts: string[], options: TranslatorOptions): void { 
         if (!this.api_key) { return alert('No API key specified!') }
-        this.mockTranslate(texts, options)
+        this.mockTranslate(texts)
+        .then(result => options.onAfterLoading(result))
+        .catch(reason => options.onError(reason))
+        .finally(options.always())
     }
 
-    private mockTranslate(texts: string[], options: TranslatorOptions) { 
+    private async mockTranslate(texts: string[]) { 
         alert(texts.length)
         // @ts-ignore
         if (this.started) { return }
         // @ts-ignore
         this.started = true
         const mock_translation = Array(texts.length).fill('b')
-        const mock_result = {
+        return {
 			sourceText: texts.join(),
 			translationText: mock_translation.join(),
 			source: texts,
 			translation: mock_translation
 		};
-
-        options.onAfterLoading(mock_result)
-        options.always()
     }
 
-    protected async execute(texts: string[], options: TranslatorOptions) { 
-        const translated_texts = await this.fetcher(texts).catch(e => e)
+    protected async execute(texts: string[]) { 
+        const translated_texts = await this.fetcher(texts)
         const result = translated_texts? {
 			sourceText: texts.join(),
 			translationText: translated_texts.join(),
@@ -59,9 +59,7 @@ class CustomEngine {
 			translation: translated_texts
 		} : null
 
-        if (result) { options.onAfterLoading(result) }
-        else { options.onError(translated_texts) }
-        options.always()
+        if (result) { return result }
     }
 
     protected formatInput(texts: string[], n: number): string[][] { 
