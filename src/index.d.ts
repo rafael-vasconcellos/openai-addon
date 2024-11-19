@@ -16,6 +16,7 @@ declare var trans: {
     [id: string]: TranslatorEngine;
     getSl(): string;
     getTl(): string;
+    abortTranslation(): void
 };
 
 declare var common: {
