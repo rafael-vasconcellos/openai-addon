@@ -55,12 +55,12 @@ class CustomEngine {
         if (true) { 
             // @ts-ignore
             this.started = true
-            const mock_translation = Array(texts.length).fill('b')
+            //const mock_translation = Array(texts.length).fill('b')
             resolve({
                 sourceText: texts.join(),
-                translationText: mock_translation.join(),
+                translationText: texts.join(),
                 source: texts,
-                translation: mock_translation
+                translation: texts
             })
         }
     })}
