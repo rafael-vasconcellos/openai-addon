@@ -24,4 +24,6 @@ declare var common: {
 
 declare var $: CallableFunction
 
-declare var ui: any;
+declare var ui: { 
+    log(text: any): void
+};
