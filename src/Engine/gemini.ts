@@ -50,7 +50,7 @@ class GeminiClient extends CustomEngine {
             author: thisAddon.package.author?.name ?? thisAddon.package.author as unknown,
             maxRequestLength: trans.config.maxRequestLength,
             mode: "rowByRow",
-            batchDelay: 0,
+            batchDelay: 1, // 0 is a falsy value, it'll be reverted to the default value (5000)
             optionsForm: { 
                 schema: { 
                     api_key: { 
@@ -99,10 +99,10 @@ class GeminiClient extends CustomEngine {
                     }, 
                 ],
                 onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
+                    this.update(key, value);
                     if (this.api_type==="free" && this.model_name.includes("pro")) { 
                         alert("Cannot use a pro model with a free key! Rate limit is too low.")
                     }
-                    this.update(key, value);
                 }
             }
 
