@@ -1,12 +1,3 @@
-declare type TranslatorOptions = {
-    onAfterLoading: (result: any) => any | Promise<any>;
-    onError: (reason: any) => any | Promise<any>;
-    always: () => any | Promise<any>;
-    progress: (perc: number) => void;
-    sl: string;
-    tl: string;
-}
-
 declare class TranslatorEngine {
     constructor(options: TranslationEngineOptions);
     update(id: string, value: any);
@@ -58,4 +49,19 @@ declare class TranslatorEngine {
     //[id: string]: any;
 }
 
+declare type TranslatorOptions = {
+    onAfterLoading: (result: any) => any | Promise<any>;
+    onError: (reason: any) => any | Promise<any>;
+    always: () => any | Promise<any>;
+    progress: (perc: number) => void;
+    sl: string;
+    tl: string;
+}
+
+declare type TranslatorEngineResults = {
+    sourceText: string;
+    translationText: string;
+    source: Array<string>;
+    translation: Array<string | undefined>;
+}
 
