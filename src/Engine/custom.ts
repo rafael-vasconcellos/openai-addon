@@ -23,7 +23,7 @@ class CustomEngine {
     public pause() {}
     public resume() {}
 
-    public async fetcher(texts: string[]): Promise<string[] | void> { 
+    public async fetcher(texts: string[]): Promise<string[]> { 
         throw new Error('Non implemented method!')
     }
 
@@ -36,9 +36,9 @@ class CustomEngine {
     }
 
     private mockTranslate(texts: string[]) { return new Promise(resolve => {
-        alert(texts.length)
+        ui.log("\n\n" + "Batch size: " + texts.length);
         // @ts-ignore
-        if (!this.started) { 
+        if (true) { 
             // @ts-ignore
             this.started = true
             const mock_translation = Array(texts.length).fill('b')
@@ -51,16 +51,16 @@ class CustomEngine {
         }
     })}
 
-    protected async execute(texts: string[]) { 
+    protected async execute(texts: string[]): Promise<TranslatorEngineResults> { 
         const translated_texts = await this.fetcher(texts)
-        const result = translated_texts? {
+        const result = {
 			sourceText: texts.join(),
 			translationText: translated_texts.join(),
 			source: texts,
 			translation: translated_texts
-		} : null
+		}
 
-        if (result) { return result }
+        return result
     }
 
     protected formatInput(texts: string[], n: number): (string | string[])[] { 

@@ -1,10 +1,11 @@
-import { PromptFeedback, GoogleGenerativeAIResponseError } from "@google/generative-ai"
+import { PromptFeedback, GoogleGenerativeAIResponseError as IGoogleGenerativeAIResponseError } from "@google/generative-ai"
 import { ICustomEngineModule } from './custom'
 import { IPromptModule } from './Prompt'
 const { 
     GoogleGenerativeAI, 
     HarmCategory, 
     HarmBlockThreshold, 
+    GoogleGenerativeAIResponseError
 } = require("www/addons/gemini/Engine/google-generative-ai.js") as typeof import('@google/generative-ai');
 const { systemPrompt, userPrompt } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
 const { CustomEngine } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
@@ -37,16 +38,23 @@ const safetySettings = [
 ]
 
 class GeminiClient extends CustomEngine { 
+    private progress: { 
+        step: number
+        startTime: number
+    } = {} as any
     get model_name() { return this.getEngine()?.getOptions('model_name') ?? "gemini-1.5-flash" }
 
     constructor(thisAddon: Addon) { 
+        trans.config.maxRequestLength = 650
         super({ 
             id: thisAddon.package.name,
             name: thisAddon.package.title,
             description: thisAddon.package.description,
             version: thisAddon.package.version,
             author: thisAddon.package.author?.name ?? thisAddon.package.author as unknown,
-            maxRequestLength: 375,
+            maxRequestLength: trans.config.maxRequestLength,
+            mode: "rowByRow",
+            batchDelay: 500,
             optionsForm: { 
                 schema: { 
                     api_key: { 
@@ -94,10 +102,6 @@ class GeminiClient extends CustomEngine {
                     }, 
                 ],
                 onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
-                    if (key === "api_type") { 
-                        //this.update("batchDelay", value==="free"? 60 : 1)
-                        this.update("maxRequestLength", value==="free"? 375 : 25)
-                    }
                     this.update(key, value);
                 }
             }
@@ -120,40 +124,30 @@ class GeminiClient extends CustomEngine {
             generationConfig: { temperature: 0 },
             safetySettings,
         })
-        .catch( (e: GoogleGenerativeAIResponseError<IGoogleFilterBlock>) => console.log(e.message))
-        )?.response?.text()?.replace(/.*(\[.*?\]).*/, "$1")
+        .catch( (e: IGoogleGenerativeAIResponseError<IGoogleFilterBlock>) => { 
+            ui.log(e.message)
+            throw new GoogleGenerativeAIResponseError(e.message, e.response)
+        }))?.response?.text()?.replace(/.*(\[.*?\]).*/, "$1")
 
-        if (response) { 
-            try { return JSON.parse(response) }
-            catch (e) { 
-                console.log(e) 
-                throw new Error("Fetch failed!")
-            }
-        }
+        try { return JSON.parse(response) }
+        catch (e) { throw new Error("Failed to parse: " + response) }
     }
 
     protected async execute(texts: string[]) { 
         if (this.api_type === "free") { 
-            const start_time = performance.now()
-            const batches = this.formatInput(texts, 25) as any[]
-            for (let i=0; i<batches.length; i++) { 
-                if (batches[i] instanceof Array) { 
-                    const translated_batch = await this.fetcher(batches[i])
-                    batches.splice(i, 1, ...translated_batch)
-                    await new Promise(res => setTimeout(res, 1000))
-                }
-            }
+            const result = super.execute(texts)
+            if (!this.progress.step) { 
+                this.progress.step = 1
+                this.progress.startTime = performance.now() 
 
-            const end_time = performance.now()
-            const exec_time = end_time - start_time
-            const remaining_time = Math.max(0, (1000*60) - exec_time);
-            await new Promise(res => setTimeout(res, remaining_time))
-            return {
-                sourceText: texts.join(),
-                translationText: batches.join(),
-                source: texts,
-                translation: batches
+            } else if (this.progress.step===15) { 
+                const exec_time = performance.now() - this.progress.startTime
+                const remaining_time = Math.max(0, (1000*60) - exec_time)
+                this.progress = {} as any
+                await new Promise(res => setTimeout(res, remaining_time)) 
             }
+            if (this.progress.step) { this.progress.step += 1 }
+            return result
 
         } else { return super.execute(texts) }
     }
