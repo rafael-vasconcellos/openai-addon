@@ -11,7 +11,7 @@ type IProgress = {
 class CustomEngine { 
     private engine: TranslatorEngine
     private progress: Partial<IProgress> = {}
-    private clear() {  }
+    private clear() { this.progress = {} }
 
     constructor(engineOptions: TranslationEngineOptions) { 
         this.engine = new TranslatorEngine(engineOptions)
