@@ -1,5 +1,14 @@
+type IRateLimit = { 
+    requests: number
+    seconds: number
+}
+
 class CustomEngine { 
     private engine: TranslatorEngine
+    private progress: { 
+        step: number
+        startTime: number
+    } = {} as any
 
     constructor(engineOptions: TranslationEngineOptions) { 
         this.engine = new TranslatorEngine(engineOptions)
@@ -10,9 +19,9 @@ class CustomEngine {
         this.engine.resume = this.resume
     }
 
-    get api_key() { return this.getEngine()?.getOptions('api_key') ?? null }
-    get target_language() { return this.getEngine()?.getOptions('target_language') ?? "English - US" }
-    get api_type() { return this.getEngine()?.getOptions('api_type') ?? "free" }
+    get api_key(): string | null { return this.getEngine()?.getOptions('api_key') ?? null }
+    get target_language(): string { return this.getEngine()?.getOptions('target_language') ?? "English - US" }
+    get api_type(): "free" | "pro" { return this.getEngine()?.getOptions('api_type') ?? "free" }
 
     public update(option: string, value: any) { 
         this.getEngine().update(option, value)
@@ -51,7 +60,27 @@ class CustomEngine {
         }
     })}
 
-    protected async execute(texts: string[]): Promise<TranslatorEngineResults> { 
+    protected async execute(texts: string[]) { 
+        return this.buildTranslationResult(texts)
+    }
+
+    protected async executeWithRateLimit(texts: string[], rateLimit: IRateLimit) { 
+        const result = this.buildTranslationResult(texts)
+        if (!this.progress.step) { 
+            this.progress.step = 1
+            this.progress.startTime = performance.now() 
+
+        } else if (this.progress.step===rateLimit.requests) { 
+            const exec_time = performance.now() - this.progress.startTime
+            const remaining_time = Math.max(0, (1000*rateLimit.seconds) - exec_time)
+            this.progress = {} as any
+            await new Promise(res => setTimeout(res, remaining_time)) 
+        }
+        if (this.progress.step) { this.progress.step += 1 }
+        return result
+    }
+
+    protected async buildTranslationResult(texts: string[]): Promise<TranslatorEngineResults> { 
         const translated_texts = await this.fetcher(texts)
         const result = {
 			sourceText: texts.join(),

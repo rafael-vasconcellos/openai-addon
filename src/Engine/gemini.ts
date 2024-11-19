@@ -38,11 +38,7 @@ const safetySettings = [
 ]
 
 class GeminiClient extends CustomEngine { 
-    private progress: { 
-        step: number
-        startTime: number
-    } = {} as any
-    get model_name() { return this.getEngine()?.getOptions('model_name') ?? "gemini-1.5-flash" }
+    get model_name(): string { return this.getEngine()?.getOptions('model_name') ?? "gemini-1.5-flash" }
 
     constructor(thisAddon: Addon) { 
         trans.config.maxRequestLength = 650
@@ -83,7 +79,8 @@ class GeminiClient extends CustomEngine {
                         title: "Model name",
                         description: "Choose the gemini model",
                         default: "gemini-1.5-flash",
-                        required: false
+                        required: false,
+                        enum: ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-002", "gemini-1.5-pro-002"]
                     }
                 },
 
@@ -102,6 +99,7 @@ class GeminiClient extends CustomEngine {
                     }, 
                 ],
                 onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
+                    if (this.api_type==="free" && this.model_name.includes("pro")) {}
                     this.update(key, value);
                 }
             }
@@ -135,21 +133,12 @@ class GeminiClient extends CustomEngine {
 
     protected async execute(texts: string[]) { 
         if (this.api_type === "free") { 
-            const result = super.execute(texts)
-            if (!this.progress.step) { 
-                this.progress.step = 1
-                this.progress.startTime = performance.now() 
+            return this.executeWithRateLimit(texts, { 
+                requests: 15,
+                seconds: 60
+            }) 
 
-            } else if (this.progress.step===15) { 
-                const exec_time = performance.now() - this.progress.startTime
-                const remaining_time = Math.max(0, (1000*60) - exec_time)
-                this.progress = {} as any
-                await new Promise(res => setTimeout(res, remaining_time)) 
-            }
-            if (this.progress.step) { this.progress.step += 1 }
-            return result
-
-        } else { return super.execute(texts) }
+        } else { return this.buildTranslationResult(texts) }
     }
 
 
