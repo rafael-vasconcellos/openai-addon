@@ -50,7 +50,7 @@ class GeminiClient extends CustomEngine {
             author: thisAddon.package.author?.name ?? thisAddon.package.author as unknown,
             maxRequestLength: trans.config.maxRequestLength,
             mode: "rowByRow",
-            batchDelay: 500,
+            batchDelay: 0,
             optionsForm: { 
                 schema: { 
                     api_key: { 
@@ -99,7 +99,9 @@ class GeminiClient extends CustomEngine {
                     }, 
                 ],
                 onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
-                    if (this.api_type==="free" && this.model_name.includes("pro")) {}
+                    if (this.api_type==="free" && this.model_name.includes("pro")) { 
+                        alert("Cannot use a pro model with a free key! Rate limit is too low.")
+                    }
                     this.update(key, value);
                 }
             }
@@ -132,6 +134,11 @@ class GeminiClient extends CustomEngine {
     }
 
     protected async execute(texts: string[]) { 
+        if (this.api_type==="free" && this.model_name.includes("pro")) { 
+            alert("Cannot use a pro model with a free key! Rate limit is too low.")
+            return this.abort()
+        }
+
         if (this.api_type === "free") { 
             return this.executeWithRateLimit(texts, { 
                 requests: 15,

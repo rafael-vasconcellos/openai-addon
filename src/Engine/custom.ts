@@ -9,14 +9,12 @@ class CustomEngine {
         step: number
         startTime: number
     } = {} as any
+    private clear() {  }
 
     constructor(engineOptions: TranslationEngineOptions) { 
         this.engine = new TranslatorEngine(engineOptions)
         this.engine.translate = this.translate.bind(this)
-        this.engine.abortTranslation = this.abort
-        this.engine.abort = this.abort
-        this.engine.pause = this.pause
-        this.engine.resume = this.resume
+        this.engine.abort = this.clear.bind(this)
     }
 
     get api_key(): string | null { return this.getEngine()?.getOptions('api_key') ?? null }
@@ -28,16 +26,21 @@ class CustomEngine {
     }
     public getEngine() { return this.engine }
     public init() { this.engine.init() }
-    public abort() {}
-    public pause() {}
-    public resume() {}
+    public abort() { 
+        this.clear()
+        trans.abortTranslation() 
+    }
 
     public async fetcher(texts: string[]): Promise<string[]> { 
         throw new Error('Non implemented method!')
     }
 
     public translate(texts: string[], options: TranslatorOptions): void { 
-        if (!this.api_key) { return alert('No API key specified!') }
+        if (!this.api_key) { 
+            alert('No API key specified!')
+            return this.abort()
+        }
+
         this.mockTranslate(texts)
         .then(result => options.onAfterLoading(result))
         .catch(reason => options.onError(reason))
@@ -60,11 +63,11 @@ class CustomEngine {
         }
     })}
 
-    protected async execute(texts: string[]) { 
+    protected async execute(texts: string[]): Promise<TranslatorEngineResults | void> { 
         return this.buildTranslationResult(texts)
     }
 
-    protected async executeWithRateLimit(texts: string[], rateLimit: IRateLimit) { 
+    protected async executeWithRateLimit(texts: string[], rateLimit: IRateLimit): Promise<TranslatorEngineResults> { 
         const result = this.buildTranslationResult(texts)
         if (!this.progress.step) { 
             this.progress.step = 1
