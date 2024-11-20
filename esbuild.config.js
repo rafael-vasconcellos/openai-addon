@@ -9,15 +9,15 @@ const entryPoints = Object.keys(_package.dependencies).map(dep =>
 
 esbuild.build({
   entryPoints, 
+  target: 'ES2021',
   bundle: true,
   minify: false,  // mantém o código legível
   format: 'cjs', 
   outdir: './dist/lib',
   keepNames: true, // preserva nomes de variáveis/funções
-  sourcemap: true,
   platform: 'browser', 
+  external: ['fsevents', 'node:*'], // Evita que o esbuild tente resolver alguns imports problemáticos
 
-  //splitting: true,
-  // Evita que o esbuild tente resolver alguns imports problemáticos
-  external: ['fsevents', 'node:*'],
+  //sourcemap: true, 
+  //splitting: true, 
 })

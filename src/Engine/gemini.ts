@@ -6,7 +6,7 @@ const {
     HarmCategory, 
     HarmBlockThreshold, 
     GoogleGenerativeAIResponseError
-} = require("www/addons/gemini/Engine/google-generative-ai.js") as typeof import('@google/generative-ai');
+} = require("www/addons/gemini/lib/generative-ai.js") as typeof import('@google/generative-ai');
 const { systemPrompt, userPrompt } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
 const { CustomEngine } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
 
@@ -101,7 +101,7 @@ class GeminiClient extends CustomEngine {
                 onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
                     this.update(key, value);
                     if (this.api_type==="free" && this.model_name.includes("pro")) { 
-                        alert("Cannot use a pro model with a free key! Rate limit is too low.")
+                        alert("Cannot use a pro model with a free key! Rate limit is too low (50 requests per day).")
                     }
                 }
             }
@@ -135,7 +135,7 @@ class GeminiClient extends CustomEngine {
 
     protected async execute(texts: string[]) { 
         if (this.api_type==="free" && this.model_name.includes("pro")) { 
-            alert("Cannot use a pro model with a free key! Rate limit is too low.")
+            alert("Cannot use a pro model with a free key! Rate limit is too low (50 requests per day).")
             return this.abort()
         }
 
