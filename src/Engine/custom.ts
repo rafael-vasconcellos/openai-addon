@@ -79,6 +79,7 @@ class CustomEngine {
             const exec_time = performance.now() - this.progress.startTime
             const remaining_time = Math.max(0, (1000*rateLimit.seconds) - exec_time)
             this.progress = {}
+            ui.log('Waiting ' + remaining_time + 'ms')
             await new Promise(res => setTimeout(res, remaining_time)) 
         }
         if (this.progress.step) { this.progress.step += 1 }
