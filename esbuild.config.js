@@ -1,6 +1,7 @@
 import * as esbuild from 'esbuild';
 import path from 'path';
 import _package from './package.json' assert { type: "json" };
+import fs from 'fs/promises';
 
 
 const entryPoints = Object.keys(_package.dependencies).map(dep => 
@@ -20,4 +21,8 @@ esbuild.build({
 
   //sourcemap: true, 
   //splitting: true, 
-})
+}).then(() => {
+    const src = path.resolve('./package.json');
+    const dest = path.resolve('./dist/package.json');
+    return fs.copyFile(src, dest)
+});
