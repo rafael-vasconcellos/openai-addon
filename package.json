@@ -11,9 +11,9 @@
   ],
   "scripts": {
     "build": "tsc && cp package.json ./dist && node esbuild.config.js",
+    "declare": "tsc ./src/Engine/custom.ts --declaration --emitDeclarationOnly",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "type": "module",
   "keywords": [],
   "license": "MIT",
   "devDependencies": {
