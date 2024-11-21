@@ -113,5 +113,6 @@ class CustomEngine {
 
 const CustomEngineModule = { CustomEngine }
 export type ICustomEngineModule = typeof CustomEngineModule
+export type ICustomEngine = typeof CustomEngine
 
 module.exports = CustomEngineModule
