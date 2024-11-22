@@ -31,7 +31,7 @@ function parseResponse(response: string) {
     const repairedString = jsonrepair(jsonString)
     try { 
         const parsed = JSON.parse(repairedString)
-        return Object.values(parsed) as string[]
+        return (Object.values(parsed) as string[]).map( text => text.replaceAll("\n", '').trim().replace(/(.*),$/, '$1') )
 
     } catch (e) { return [] as string[] }
 }
