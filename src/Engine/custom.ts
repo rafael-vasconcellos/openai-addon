@@ -115,8 +115,11 @@ declare class EngineClient extends CustomEngine {
     constructor(thisAddon: Addon);
 }
 
-const CustomEngineModule = { CustomEngine, EngineClient }
-export type ICustomEngineModule = typeof CustomEngineModule
+const CustomEngineModule = { CustomEngine }
+export type ICustomEngineModule = typeof CustomEngineModule & { 
+    EngineClient: typeof EngineClient
+}
 export type ICustomEngine = typeof CustomEngine
 
 module.exports = CustomEngineModule
+

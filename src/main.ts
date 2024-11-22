@@ -11,4 +11,4 @@ try {
 		client.init();
 	});
 
-} catch (e) { alert(e) }
+} catch (e: any) { alert(e.stack) }
