@@ -1,3 +1,6 @@
+const { jsonrepair } = require("www/addons/gemini/lib/jsonrepair.js") as typeof import('jsonrepair')
+
+
 const systemPrompt = (targetLanguage: string) => `
     You are an expert Eroge Game translator who translates Japanese text to ${targetLanguage}. 
     You are going to be translating text from a videogame. 
@@ -24,9 +27,10 @@ return `
 `}
 
 function parseResponse(response: string) { 
-    response = response?.replace(/.*?\s({.*}).*/s, '$1')
+    const jsonString = response?.replace(/.*?\s({.*}).*/s, '$1')
+    const repairedString = jsonrepair(jsonString)
     try { 
-        const parsed = JSON.parse(response)
+        const parsed = JSON.parse(repairedString)
         return Object.values(parsed) as string[]
 
     } catch (e) { return [] as string[] }

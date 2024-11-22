@@ -5,7 +5,7 @@ const {
     GoogleGenerativeAI, 
     HarmCategory, 
     HarmBlockThreshold, 
-} = require("www/addons/gemini/lib/generative-ai.js") as typeof import('@google/generative-ai');
+} = require("www/addons/gemini/lib/@google/generative-ai.js") as typeof import('@google/generative-ai');
 const { CustomEngine, TranslationFailException } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
 
