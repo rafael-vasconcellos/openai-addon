@@ -51,12 +51,14 @@ declare class TranslatorEngine {
 
 declare type TranslatorOptions = {
     onAfterLoading: (result: any) => any | Promise<any>;
-    onError: (reason: any) => any | Promise<any>;
+    onError: (evt: ErrorEvt, type, errorType: string) => void;
     always: () => any | Promise<any>;
     progress: (perc: number) => void;
     sl: string;
     tl: string;
 }
+
+declare type ErrorEvt = { status?: number | string }
 
 declare type TranslatorEngineResults = {
     sourceText: string;
