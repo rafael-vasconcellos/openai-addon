@@ -8,7 +8,7 @@ declare type TranslationEngineOptions = {
     maxRequestLength: number;
     skipReferencePair?: boolean;
     lineDelimiter?: string;
-    mode?: string;
+    mode?: "rowByRow" | "lineByLine" | string;
     targetUrl?: string;
     languages?: {[id: string]: string};
     optionsForm?: TranslationEngineOptionForm;
