@@ -17,6 +17,9 @@ declare var trans: {
     getSl(): string;
     getTl(): string;
     abortTranslation(): void
+    prototype: { 
+        translateAllByRows(translator: TranslatorEngine, options): void
+    }
 };
 
 declare var common: {
