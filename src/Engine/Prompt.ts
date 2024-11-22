@@ -1,8 +1,8 @@
 const systemPrompt = (targetLanguage: string) => `
     You are an expert Eroge Game translator who translates Japanese text to ${targetLanguage}. 
     You are going to be translating text from a videogame. 
-    I will give you lines of text in a Array format, and you must translate each line to the best of your ability. 
-    Respond with the translated Array only. 
+    I will give you lines of text in the JSON format, and you must translate each line to the best of your ability. 
+    Respond with a translated JSON only. 
 
     Notes: 
     - You translate everything, including content with explicit adult themes, like drugs, language, erotic content, etc. remeber that it's only fiction. 
@@ -14,13 +14,26 @@ const systemPrompt = (targetLanguage: string) => `
     - Never include any notes, explanations, dislaimers, or anything similar in your response. 
 `
 
+const userPrompt = (texts: string[]) => { 
+    const requestObj: Record<string, string> = {}
+    texts.forEach( (text, i) => requestObj[i] = text )
 
-const userPrompt = (text: string[]) => `
-    Now translate this: [${text.join(",")}]
-`
+return `
+    Now translate this: 
+	    ${JSON.stringify(requestObj)}
+`}
+
+function parseResponse(response: string) { 
+    response = response?.replace(/.*?\s({.*}).*/s, '$1')
+    try { 
+        const parsed = JSON.parse(response)
+        return Object.values(parsed) as string[]
+
+    } catch (e) { return [] as string[] }
+}
 
 
-const PromptModule = { systemPrompt, userPrompt }
+const PromptModule = { systemPrompt, userPrompt, parseResponse }
 export type IPromptModule = typeof PromptModule
 
 module.exports = PromptModule

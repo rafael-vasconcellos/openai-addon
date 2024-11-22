@@ -6,8 +6,8 @@ const {
     HarmCategory, 
     HarmBlockThreshold, 
 } = require("www/addons/gemini/lib/generative-ai.js") as typeof import('@google/generative-ai');
-const { systemPrompt, userPrompt } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
 const { CustomEngine, TranslationFailException } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
+const { systemPrompt, userPrompt, parseResponse } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
 
 
 
@@ -127,18 +127,19 @@ class EngineClient extends CustomEngine {
                 message: e.message,
                 status: e.response?.promptFeedback.blockReason
             })
-        }))?.response?.text()?.replace(/.*(\[.*?\]).*/, "$1")
+        }))?.response?.text()
 
-        try { 
-            const result = JSON.parse(response) 
-            return result.length===trans.config.maxRequestLength? result : null
-        }
-        catch (e) { 
+
+        const result = parseResponse(response) 
+        if (result.length!==texts.length) { 
+            const message = result.length===0? "Failed to parse: " + response : 'Unexpected error!'
             throw new TranslationFailException({
-                message: "Failed to parse: " + response,
+                message,
                 status: 200
             }) 
         }
+
+        return result
     }
 
     protected async execute(texts: string[]) { 

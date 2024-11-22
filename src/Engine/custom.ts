@@ -67,14 +67,14 @@ class CustomEngine {
             return this.abort()
         }
 
-        this.mockTranslate(texts)
+        ui.log("\n\n" + "Batch size: " + texts.length);
+        this.execute(texts)
         .then(result => options.onAfterLoading(result))
         .catch( (obj: TranslationFailException) => options.onError(obj, undefined, obj.message) )
         .finally(options.always())
     }
 
-    private mockTranslate(texts: string[]) { return new Promise(resolve => {
-        ui.log("\n\n" + "Batch size: " + texts.length);
+    private mockTranslate(texts: string[]) { return new Promise(resolve => { 
         // @ts-ignore
         if (true) { 
             // @ts-ignore
