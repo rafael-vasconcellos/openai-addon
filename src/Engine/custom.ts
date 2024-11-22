@@ -8,12 +8,31 @@ type IProgress = {
     startTime: number
 }
 
+
+
+function replaceNativeFunction() { 
+    const originalFunc = trans.translateAllByRows?.toString()
+    if (originalFunc) { 
+        let customFunc = originalFunc.replace("escapedSentence.length > currentMaxLength", "false")
+        customFunc = customFunc.replace(
+            "escapedSentence.length+currentRequestLength", 
+            "thisTranslator.job.batch[currentBatchID].length+1"
+        )
+
+        return eval(`(${customFunc})`)
+    }
+
+    return null
+}
+
 class CustomEngine { 
     private engine: TranslatorEngine
     private progress: Partial<IProgress> = {}
     private clear() { this.progress = {} }
 
     constructor(engineOptions: TranslationEngineOptions) { 
+        engineOptions.mode = "rowByRow"
+        trans.translateAllByRows = replaceNativeFunction() ?? trans.translateAllByRows
         this.engine = new TranslatorEngine(engineOptions)
         this.engine.translate = this.translate.bind(this)
         this.engine.abort = this.clear.bind(this)
