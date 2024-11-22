@@ -129,7 +129,10 @@ class EngineClient extends CustomEngine {
             })
         }))?.response?.text()?.replace(/.*(\[.*?\]).*/, "$1")
 
-        try { return JSON.parse(response) }
+        try { 
+            const result = JSON.parse(response) 
+            return result.length===trans.config.maxRequestLength? result : null
+        }
         catch (e) { 
             throw new TranslationFailException({
                 message: "Failed to parse: " + response,
