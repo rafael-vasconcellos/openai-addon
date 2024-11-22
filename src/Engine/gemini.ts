@@ -5,10 +5,9 @@ const {
     GoogleGenerativeAI, 
     HarmCategory, 
     HarmBlockThreshold, 
-    GoogleGenerativeAIResponseError
 } = require("www/addons/gemini/lib/generative-ai.js") as typeof import('@google/generative-ai');
 const { systemPrompt, userPrompt } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
-const { CustomEngine } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
+const { CustomEngine, TranslationFailException } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
 
 
 
@@ -124,12 +123,19 @@ class EngineClient extends CustomEngine {
             safetySettings,
         })
         .catch( (e: IGoogleGenerativeAIResponseError<IGoogleFilterBlock>) => { 
-            ui.log(e.message)
-            throw new GoogleGenerativeAIResponseError(e.message, e.response)
+            throw new TranslationFailException({ 
+                message: e.message,
+                status: e.response?.promptFeedback.blockReason
+            })
         }))?.response?.text()?.replace(/.*(\[.*?\]).*/, "$1")
 
         try { return JSON.parse(response) }
-        catch (e) { throw new Error("Failed to parse: " + response) }
+        catch (e) { 
+            throw new TranslationFailException({
+                message: "Failed to parse: " + response,
+                status: 200
+            }) 
+        }
     }
 
     protected async execute(texts: string[]) { 

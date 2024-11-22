@@ -8,6 +8,11 @@ type IProgress = {
     startTime: number
 }
 
+interface ITranslationFailExceptionDTO { 
+    message: string
+    status?: number | string
+}
+
 
 
 function replaceNativeFunction() { 
@@ -64,7 +69,7 @@ class CustomEngine {
 
         this.mockTranslate(texts)
         .then(result => options.onAfterLoading(result))
-        .catch(reason => options.onError(reason))
+        .catch( (obj: TranslationFailException) => options.onError(obj, undefined, obj.message) )
         .finally(options.always())
     }
 
@@ -134,7 +139,17 @@ declare class EngineClient extends CustomEngine {
     constructor(thisAddon: Addon);
 }
 
-const CustomEngineModule = { CustomEngine }
+
+class TranslationFailException extends Error { 
+    public status: ITranslationFailExceptionDTO['status']
+    constructor(data: ITranslationFailExceptionDTO) { 
+        super(data.message)
+        this.status = data.status
+    }
+}
+
+
+const CustomEngineModule = { CustomEngine, TranslationFailException }
 export type ICustomEngineModule = typeof CustomEngineModule & { 
     EngineClient: typeof EngineClient
 }
