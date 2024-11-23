@@ -130,7 +130,7 @@ class EngineClient extends CustomEngine {
         }))?.response?.text()
 
 
-        const result = parseResponse(response) 
+        const result = await parseResponse(response) 
         if (result.length!==texts.length) { 
             const message = result.length===0? "Failed to parse: " + response : 'Unexpected error!'
             throw new TranslationFailException({

@@ -26,14 +26,18 @@ return `
 	    ${JSON.stringify(requestObj)}
 `}
 
-function parseResponse(response: string) { 
+async function parseResponse(response: string) { 
     const jsonString = response?.replace(/.*?\s({.*}).*/s, '$1')
-    const repairedString = jsonrepair(jsonString)
+    const repairedString = await (parseJsonString(jsonString).catch( () => jsonString ))
     try { 
         const parsed = JSON.parse(repairedString)
         return (Object.values(parsed) as string[]).map( text => text.replaceAll("\n", '').trim().replace(/(.*),$/, '$1') )
 
     } catch (e) { return [] as string[] }
+}
+
+async function parseJsonString(text: string) { 
+    return jsonrepair(text)
 }
 
 
