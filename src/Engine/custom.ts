@@ -53,8 +53,8 @@ class CustomEngine {
     public getEngine() { return this.engine }
     public init() { this.engine.init() }
     public abort() { 
+        trans.abortTranslation()
         this.clear()
-        trans.abortTranslation() 
     }
 
     public async fetcher(texts: string[]): Promise<string[]> { 
@@ -69,9 +69,12 @@ class CustomEngine {
 
         ui.log("\n\n" + "Batch size: " + texts.length);
         this.execute(texts)
-        .then(result => options.onAfterLoading(result))
-        .catch( (obj: TranslationFailException) => options.onError(obj, undefined, obj.message) )
-        .finally(options.always())
+            .then(result => options.onAfterLoading(result))
+            .catch( (obj: TranslationFailException) => { 
+                if (!obj.status) { ui.log(obj.stack) }
+                options.onError(obj, undefined, obj.message)
+            })
+            .finally(options.always())
     }
 
     private mockTranslate(texts: string[]) { return new Promise(resolve => { 
@@ -94,18 +97,19 @@ class CustomEngine {
     }
 
     protected async executeWithRateLimit(texts: string[], rateLimit: IRateLimit): Promise<TranslatorEngineResults> { 
-        const result = this.buildTranslationResult(texts)
         if (!this.progress.step) { 
             this.progress.step = 1
             this.progress.startTime = performance.now() 
 
-        } else if ( (this.progress.step===rateLimit.requests) && this.progress.startTime ) { 
+        } else if ( (this.progress.step > rateLimit.requests) && this.progress.startTime ) { 
             const exec_time = performance.now() - this.progress.startTime
             const remaining_time = Math.max(0, (1000*rateLimit.seconds) - exec_time)
             this.progress = {}
-            ui.log('Waiting ' + remaining_time + 'ms')
+            ui.log('Waiting ' + remaining_time/1000 + 's...')
             await new Promise(res => setTimeout(res, remaining_time)) 
         }
+
+        const result = this.buildTranslationResult(texts)
         if (this.progress.step) { this.progress.step += 1 }
         return result
     }

@@ -125,7 +125,7 @@ class EngineClient extends CustomEngine {
         .catch( (e: IGoogleGenerativeAIResponseError<IGoogleFilterBlock>) => { 
             throw new TranslationFailException({ 
                 message: e.message,
-                status: e.response?.promptFeedback.blockReason
+                status: e.response?.promptFeedback.blockReason ?? 'BLOCKED'
             })
         }))?.response?.text()
 
