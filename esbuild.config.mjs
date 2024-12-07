@@ -14,7 +14,7 @@ esbuild.build({
   bundle: true,
   minify: false,  // mantém o código legível
   format: 'cjs', 
-  outdir: './dist/lib',
+  outdir: './dist/gemini/lib',
   keepNames: true, // preserva nomes de variáveis/funções
   platform: 'browser', 
   external: ['fsevents', 'node:*'], // Evita que o esbuild tente resolver alguns imports problemáticos
@@ -23,6 +23,6 @@ esbuild.build({
   //splitting: true, 
 }).then(() => {
     const src = path.resolve('./package.json');
-    const dest = path.resolve('./dist/package.json');
+    const dest = path.resolve('./dist/gemini/package.json');
     return fs.copyFile(src, dest)
 });
