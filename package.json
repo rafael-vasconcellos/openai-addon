@@ -2,6 +2,7 @@
   "name": "gemini-addon",
   "title": "Gemini",
   "description": "Google's gemini support for Translator++.",
+  "icon": "icon.png",
   "author": "",
   "version": "1.0.0",
   "main": "main.js",
