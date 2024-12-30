@@ -1,10 +1,11 @@
-import { PromptFeedback, GoogleGenerativeAIResponseError as IGoogleGenerativeAIResponseError } from "@google/generative-ai"
+import { PromptFeedback, GoogleGenerativeAIResponseError as IGoogleGenerativeAIResponseError, SchemaType as ISchemaType } from "@google/generative-ai"
 import { ICustomEngineModule } from './custom'
 import { IPromptModule } from './Prompt'
 const { 
     GoogleGenerativeAI, 
     HarmCategory, 
     HarmBlockThreshold, 
+    SchemaType
 } = require("www/addons/gemini/lib/@google/generative-ai.js") as typeof import('@google/generative-ai');
 const { CustomEngine, TranslationFailException } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
@@ -36,11 +37,26 @@ const safetySettings = [
     }
 ]
 
+const batchSize = 25
+const responseSchema: { 
+    type: ISchemaType
+    properties: Record<string, any>
+    required?: string[]
+} = { 
+    type: SchemaType.OBJECT,
+    properties: {}
+}
+for (let i=0; i<batchSize; i++) { 
+    responseSchema.properties[`${i}`] = { type: "string" }
+}
+responseSchema.required = Object.keys(responseSchema.properties)
+
+
 class EngineClient extends CustomEngine { 
     get model_name(): string { return this.getEngine()?.getOptions('model_name') ?? "gemini-1.5-flash" }
 
     constructor(thisAddon: Addon) { 
-        trans.config.maxRequestLength = 25
+        trans.config.maxRequestLength = batchSize
         super({ 
             id: thisAddon.package.name,
             name: thisAddon.package.title,
@@ -119,7 +135,11 @@ class EngineClient extends CustomEngine {
 
         const response = (await generativeModel.generateContent({ 
             contents: [{ role: "user", parts }],
-            generationConfig: { temperature: 0 },
+            generationConfig: { 
+                temperature: 0, 
+                responseMimeType: "application/json",
+                responseSchema
+            },
             safetySettings,
         })
         .catch( (e: IGoogleGenerativeAIResponseError<IGoogleFilterBlock>) => { 
@@ -130,8 +150,8 @@ class EngineClient extends CustomEngine {
         }))?.response?.text()
 
 
-        const result = await parseResponse(response) 
-        if (result.length!==texts.length) { 
+        const result = (await parseResponse(response)).filter(text => text !== "string")
+        if (result.length !== texts.length) { 
             const message = result.length === 0? 
 				"Failed to parse: " + response 
 				: `Unexpected error: length ${result.length} out of ${texts.length}.` + '\n\n' + response;

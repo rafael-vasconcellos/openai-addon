@@ -27,11 +27,17 @@ return `
 `}
 
 async function parseResponse(response: string) { 
-    const jsonString = response?.replace(/.*?\s({.*}).*/s, '$1')
-    const repairedString = await (parseJsonString(jsonString).catch( () => jsonString ))
+    const output: string[] = [];
+    const jsonString = response?.replace(/.*?\s({.*}).*/s, '$1');
+    const repairedString = await parseJsonString(jsonString).catch( () => jsonString );
     try { 
-        const parsed = JSON.parse(repairedString)
-        return (Object.values(parsed) as string[]).map( text => text.replaceAll("\n", '').trim().replace(/(.*),$/, '$1') )
+        const parsed = JSON.parse(repairedString);
+        (Object.entries(parsed) as ([string, string])[])
+        .forEach(entry => { 
+            const [ key, value ] = entry
+            output[Number(key)] = value.replaceAll("\n", '').trim().replace(/(.*),$/, '$1')
+        });
+        return output;
 
     } catch (e) { return [] as string[] }
 }
