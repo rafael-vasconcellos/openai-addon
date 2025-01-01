@@ -35,7 +35,7 @@ async function parseResponse(response: string) {
         (Object.entries(parsed) as ([string, string])[])
         .forEach(entry => { 
             const [ key, value ] = entry
-            output[Number(key)] = value.replaceAll("\n", '').trim().replace(/(.*),$/, '$1')
+            output[Number(key)] = value.replaceAll("\n", '').trim().replace(/(.*),$/, '$1').replace(/.*\「(.*?)\」.*/, "$1")
         });
         return output;
 
