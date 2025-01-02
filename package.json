@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "jsonrepair": "^3.10.0"
+    "jsonrepair": "^3.10.0",
+    "openai": "^4.77.0"
   }
 }
