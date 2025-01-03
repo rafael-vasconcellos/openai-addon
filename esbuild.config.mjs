@@ -29,6 +29,8 @@ esbuild.build({
         { src: './package.json', dest: distDir + 'package.json' },
         { src: './icon.png', dest: distDir + 'icon.png' },
         { src: './icon.ico', dest: distDir + 'icon.ico' },
+        { src: './src/python/g4f-inference.py', dest: distDir + 'lib' + '/g4f-inference.py' },
+        { src: './src/python/requirements.txt', dest: distDir + 'lib' + '/requirements.txt' },
     ];
 
     files.forEach(file => {
