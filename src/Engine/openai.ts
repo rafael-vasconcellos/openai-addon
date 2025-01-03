@@ -59,9 +59,6 @@ class EngineClient extends CustomEngine {
                 form: [ 
                     { 
                         key: "base_url",
-                        /* onChange: (evt: Event & { target: HTMLInputElement }) => { 
-                            if (evt.target?.value) { this.api_key = evt.target.value }
-                        } */
                     }, { 
                         key: "model_name"
                     }, {
@@ -77,10 +74,13 @@ class EngineClient extends CustomEngine {
     }
 
     public async fetcher(texts: string[]) { 
-        this.setup()
+        await this.setup().catch(e => { 
+            throw new Error(`exec error: ${e}`)
+        })
         const client = new OpenAI({ 
             baseURL: this.base_url,
-            apiKey: this.api_key
+            apiKey: this.api_key,
+            dangerouslyAllowBrowser: true
         })
         
         const response = await client.chat.completions.create({ 
@@ -116,10 +116,23 @@ class EngineClient extends CustomEngine {
     }
 
     setup() { 
-        if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
-            this.g4f_server_status = true
-            exec('www/addons/openai/lib/g4f-inference.exe') 
-        }
+        return new Promise<void>( (resolve, reject) => {
+            if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
+                ui.log('Starting G4F server...')
+                this.g4f_server_status = true
+                exec('start www/addons/openai/lib/g4f-inference.exe', (error, stdout, stderr) => { 
+                    if (error) { 
+                        console.error(`exec error: ${error}`);
+                        return reject(error);
+                    }
+                    console.log(`stdout: ${stdout}`);
+                    console.error(`stderr: ${stderr}`);
+                    if (stdout.includes('Uvicorn running on')) { resolve() }
+                })
+
+            } else { resolve() }
+
+        })
     }
 
 }
