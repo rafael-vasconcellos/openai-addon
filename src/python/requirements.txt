@@ -1,1 +1,2 @@
 g4f[all]
+pyinstaller

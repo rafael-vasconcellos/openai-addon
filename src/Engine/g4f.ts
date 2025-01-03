@@ -1,15 +1,18 @@
 import { IPromptModule } from './Prompt';
 import { ICustomEngineModule } from './custom';
 const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
+const { exec } = require('child_process') as typeof import('child_process');
 const { CustomEngine, TranslationFailException } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
 
 
 
 class EngineClient extends CustomEngine { 
+    private readonly default_base_url = "http://localhost:1337/v1"
+    private g4f_server_status = false
     get model_name(): string { return this.getEngine()?.getOptions('model_name') ?? "gpt-4o" }
     get api_key(): string { return this.getEngine()?.getOptions('api_key') ?? "Placeholder" }
-    get base_url(): string { return this.getEngine()?.getOptions('base_url') ?? "http://localhost:1337/v1" }
+    get base_url(): string { return this.getEngine()?.getOptions('base_url') ?? this.default_base_url }
 
     constructor(thisAddon: Addon) { 
         trans.config.maxRequestLength = 25
@@ -74,6 +77,7 @@ class EngineClient extends CustomEngine {
     }
 
     public async fetcher(texts: string[]) { 
+        this.setup()
         const client = new OpenAI({ 
             baseURL: this.base_url,
             apiKey: this.api_key
@@ -111,4 +115,17 @@ class EngineClient extends CustomEngine {
         return result
     }
 
+    setup() { 
+        if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
+            this.g4f_server_status = true
+            exec('www/addons/openai/lib/g4f-inference.exe') 
+        }
+    }
+
 }
+
+
+const EngineModule = { EngineClient }
+export type IEngineModule = typeof EngineModule
+module.exports = EngineModule
+

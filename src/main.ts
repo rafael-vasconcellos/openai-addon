@@ -1,7 +1,7 @@
 import { ICustomEngineModule } from "./Engine/custom"
 
 try {
-	const { EngineClient } = require("www/addons/gemini/Engine/gemini.js") as ICustomEngineModule;
+	const { EngineClient } = require("www/addons/openai/Engine/g4f.js") as ICustomEngineModule;
 	const thisAddon = <Addon> (this as unknown)
 	const client = new EngineClient(thisAddon)
 	trans[thisAddon.package.name] = client.getEngine()
