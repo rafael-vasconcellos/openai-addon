@@ -11,7 +11,7 @@
     "main.js"
   ],
   "scripts": {
-    "build": "tsc && node esbuild.config.mjs && npm run pack",
+    "build": "tsc && node esbuild.config.mjs",
     "pack": "pyinstaller src/python/g4f-inference.py --onefile --noconsole --icon=dist/openai/icon.ico --distpath ./dist/openai/lib",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
