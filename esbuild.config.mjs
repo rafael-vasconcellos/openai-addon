@@ -8,13 +8,16 @@ const entryPoints = Object.keys(_package.dependencies).map(dep =>
     path.resolve('node_modules', dep)
 );
 
+const distDir = './dist/openai/';
+
+
 esbuild.build({
   entryPoints, 
   target: 'ES2021',
   bundle: true,
   minify: false,  // mantém o código legível
   format: 'cjs', 
-  outdir: './dist/gemini/lib',
+  outdir: distDir + 'lib',
   keepNames: true, // preserva nomes de variáveis/funções
   platform: 'browser', 
   external: ['fsevents', 'node:*'], // Evita que o esbuild tente resolver alguns imports problemáticos
@@ -22,10 +25,13 @@ esbuild.build({
   //sourcemap: true, 
   //splitting: true, 
 }).then(() => {
-    const package_src = path.resolve('./package.json');
-    const package_dest = path.resolve('./dist/gemini/package.json');
-    const icon_src = path.resolve('./icon.png');
-    const icon_dest = path.resolve('./dist/gemini/icon.png');
-    fs.copyFile(package_src, package_dest)
-    fs.copyFile(icon_src, icon_dest)
+    const files = [
+        { src: './package.json', dest: distDir + 'package.json' },
+        { src: './icon.png', dest: distDir + 'icon.png' },
+        { src: './icon.ico', dest: distDir + 'icon.ico' },
+    ];
+
+    files.forEach(file => {
+        fs.copyFile(path.resolve(file.src), path.resolve(file.dest));
+    });
 });
