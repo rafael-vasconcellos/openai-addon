@@ -1,4 +1,4 @@
-const { jsonrepair } = require("www/addons/gemini/lib/jsonrepair.js") as typeof import('jsonrepair')
+const { jsonrepair } = require("www/addons/openai/lib/jsonrepair.js") as typeof import('jsonrepair')
 
 
 const systemPrompt = (targetLanguage: string) => `

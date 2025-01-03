@@ -2,8 +2,8 @@ import { IPromptModule } from './Prompt';
 import { ICustomEngineModule } from './custom';
 const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
 const { exec } = require('child_process') as typeof import('child_process');
-const { CustomEngine, TranslationFailException } = require("www/addons/gemini/Engine/custom.js") as ICustomEngineModule;
-const { systemPrompt, userPrompt, parseResponse } = require("www/addons/gemini/Engine/Prompt.js") as IPromptModule;
+const { CustomEngine, TranslationFailException } = require("www/addons/openai/Engine/custom.js") as ICustomEngineModule;
+const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/Engine/Prompt.js") as IPromptModule;
 
 
 
