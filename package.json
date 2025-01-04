@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "tsc && node esbuild.config.mjs",
-    "pack": "pyinstaller ./dist/openai/lib/g4f-inference.py --onefile --noconsole --icon=./dist/openai/icon.ico --distpath ./dist/openai/lib",
+    "pack": "shiv -o ./dist/openai/lib/python/g4f_inference.pyz -e g4f_inference.main:main -r ./src/python/requirements.txt ./src/python",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

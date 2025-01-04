@@ -1,0 +1,1 @@
+shiv -o g4f_inference.pyz -e g4f_inference.main:main -r requirements.txt .
