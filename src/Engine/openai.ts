@@ -120,7 +120,7 @@ class EngineClient extends CustomEngine {
             if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
                 ui.log('Starting G4F server...')
                 this.g4f_server_status = true
-                exec('start www/addons/openai/lib/g4f-inference.exe', (error, stdout, stderr) => { 
+                exec('www/addons/openai/lib/python/g4f_inference.exe', (error, stdout, stderr) => { 
                     if (error) { 
                         console.error(`exec error: ${error}`);
                         return reject(error);

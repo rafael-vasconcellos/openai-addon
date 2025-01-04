@@ -12,15 +12,17 @@
   ],
   "scripts": {
     "build": "tsc && node esbuild.config.mjs",
-    "pack": "shiv -o ./dist/openai/lib/python/g4f_inference.pyz -e g4f_inference.main:main -r ./src/python/requirements.txt ./src/python",
+    "pack": "shiv -o ./dist/openai/lib/g4f_inference.pyz -e g4f_inference.main:main -r ./src/py/requirements.txt ./src/py",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.9.1",
+    "axios": "^1.7.9",
     "esbuild": "^0.24.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "unzipper": "^0.12.3"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

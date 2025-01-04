@@ -1,7 +1,9 @@
 import * as esbuild from 'esbuild';
 import path from 'path';
 import _package from './package.json' assert { type: "json" };
-import fs from 'fs/promises';
+import fs from 'fs';
+import { downloadFile, unzipFile } from './python.download.mjs';
+//import { unzip } from 'zlib';
 
 
 const entryPoints = Object.keys(_package.dependencies).map(dep => 
@@ -32,6 +34,19 @@ esbuild.build({
     ];
 
     files.forEach(file => {
-        fs.copyFile(path.resolve(file.src), path.resolve(file.dest));
+        fs.copyFile(path.resolve(file.src), path.resolve(file.dest), (err) => {
+            if (err) { throw err }
+        });
     });
-});
+
+}).then(async() => { 
+    const packageURL = 'https://www.python.org/ftp/python/3.8.10/python-3.8.10-embed-amd64.zip'
+    const outputDirPath = path.resolve('./python')
+    const outputZipPath = path.resolve('./python', 'python-3.8.10-embed-amd64.zip');
+    if (!fs.existsSync(outputZipPath)) { 
+        if (!fs.existsSync(outputDirPath)) {  fs.mkdirSync(outputDirPath); }
+        await downloadFile(packageURL, outputZipPath); 
+    }
+    unzipFile(outputZipPath, path.resolve(distDir, 'lib', 'python'));
+
+}).catch(e => console.log(e.stack));
