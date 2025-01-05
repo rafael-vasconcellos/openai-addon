@@ -9,7 +9,7 @@ const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/E
 
 
 const options: Options = {
-    pythonPath: 'www/addons/openai/lib/python', // Especifique o caminho do interpretador Python
+    pythonPath: 'www/addons/openai/lib/python/python.exe', // Especifique o caminho do interpretador Python
     scriptPath: 'www/addons/openai/lib', // Caminho onde o script Python está localizado
     //args: []
     //
@@ -83,7 +83,7 @@ class EngineClient extends CustomEngine {
 
     public async fetcher(texts: string[]) { 
         await this.setup().catch(e => { 
-            throw new Error(`exec error: ${e}`)
+            throw new Error(`exec error: ${e.stack}`)
         })
         const client = new OpenAI({ 
             baseURL: this.base_url,
@@ -123,12 +123,29 @@ class EngineClient extends CustomEngine {
         return result
     }
 
-    async setup() { 
-        if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
-            ui.log('Starting G4F server...')
-            this.g4f_server_status = true
-            return await PythonShell.run('g4f_inference.pyz', options);
-        }
+    setup() { 
+        return new Promise<void>( (resolve, reject) => {
+            if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
+                ui.log('Starting G4F server...')
+                this.g4f_server_status = true
+                const pyshell = new PythonShell('g4f_inference.pyz', options)
+
+                pyshell.on('message', (message: string) => { 
+                    ui.log(message)
+                    if (message.includes('Uvicorn running on')) { 
+                        ui.log('G4F server started.')
+                        resolve() 
+                    }
+                })
+                pyshell.on('stderr', (stderr) => { 
+                    this.g4f_server_status = false
+                    ui.log(stderr)
+                    reject()
+                });
+
+            } else { resolve() }
+
+        })
     }
 
 }
