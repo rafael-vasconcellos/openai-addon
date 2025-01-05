@@ -1,19 +1,16 @@
-import { Options } from 'python-shell';
 import { IPromptModule } from './Prompt';
 import { ICustomEngineModule } from './custom';
+const path = require('path') as typeof import('path');
+const { spawn } = require('child_process') as typeof import('child_process');
 const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
-const { PythonShell } = require('www/addons/openai/lib/python-shell.js') as typeof import('python-shell');
 const { CustomEngine, TranslationFailException } = require("www/addons/openai/Engine/custom.js") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/Engine/Prompt.js") as IPromptModule;
 
 
 
-const options: Options = {
-    pythonPath: 'www/addons/openai/lib/python/python.exe', // Especifique o caminho do interpretador Python
-    scriptPath: 'www/addons/openai/lib', // Caminho onde o script Python está localizado
-    //args: []
-    //
-};
+const pythonPath = path.resolve('www/addons/openai/lib/python/python.exe')
+const scriptDirPath = path.resolve('www/addons/openai/lib')
+const scriptPath = path.join(scriptDirPath, 'g4f_inference.pyz')
 
 class EngineClient extends CustomEngine { 
     private readonly default_base_url = "http://localhost:1337/v1"
@@ -109,11 +106,12 @@ class EngineClient extends CustomEngine {
             })
         })
 
-        const result = await parseResponse(response.choices[0].message.content ?? "")
+        const response_text = response.choices[0].message.content ?? ""
+        const result = await parseResponse(response_text)
         if (result.length !== texts.length) { 
             const message = result.length === 0? 
-				"Failed to parse: " + response 
-				: `Unexpected error: length ${result.length} out of ${texts.length}.` + '\n\n' + response;
+				"Failed to parse: " + response_text 
+				: `Unexpected error: length ${result.length} out of ${texts.length}.` + '\n\n' + response_text;
             throw new TranslationFailException({
                 message,
                 status: 200
@@ -128,20 +126,16 @@ class EngineClient extends CustomEngine {
             if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
                 ui.log('Starting G4F server...')
                 this.g4f_server_status = true
-                const pyshell = new PythonShell('g4f_inference.pyz', options)
-
-                pyshell.on('message', (message: string) => { 
-                    ui.log(message)
-                    if (message.includes('Uvicorn running on')) { 
-                        ui.log('G4F server started.')
-                        resolve() 
-                    }
-                })
-                pyshell.on('stderr', (stderr) => { 
-                    this.g4f_server_status = false
-                    ui.log(stderr)
-                    reject()
-                });
+                const child = spawn(pythonPath, [scriptPath])
+                child.on('close', () => { this.g4f_server_status = false })
+                const interval = setInterval(() => { 
+                    fetch(this.base_url).then(response => { 
+                        if (response.ok) { 
+                            clearInterval(interval)
+                            resolve()
+                        }
+                    })
+                }, 1000)
 
             } else { resolve() }
 
