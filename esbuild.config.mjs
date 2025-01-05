@@ -15,13 +15,13 @@ const distDir = './dist/openai/';
 
 esbuild.build({
   entryPoints, 
-  target: 'ES2021',
+  target: 'node15',
   bundle: true,
   minify: false,  // mantém o código legível
   format: 'cjs', 
   outdir: distDir + 'lib',
   keepNames: true, // preserva nomes de variáveis/funções
-  platform: 'browser', 
+  platform: 'node', 
   external: ['fsevents', 'node:*'], // Evita que o esbuild tente resolver alguns imports problemáticos
 
   //sourcemap: true, 

@@ -1,11 +1,19 @@
+import { Options } from 'python-shell';
 import { IPromptModule } from './Prompt';
 import { ICustomEngineModule } from './custom';
 const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
-const { exec } = require('child_process') as typeof import('child_process');
+const { PythonShell } = require('www/addons/openai/lib/python-shell.js') as typeof import('python-shell');
 const { CustomEngine, TranslationFailException } = require("www/addons/openai/Engine/custom.js") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/Engine/Prompt.js") as IPromptModule;
 
 
+
+const options: Options = {
+    pythonPath: 'www/addons/openai/lib/python', // Especifique o caminho do interpretador Python
+    scriptPath: 'www/addons/openai/lib', // Caminho onde o script Python está localizado
+    //args: []
+    //
+};
 
 class EngineClient extends CustomEngine { 
     private readonly default_base_url = "http://localhost:1337/v1"
@@ -115,24 +123,12 @@ class EngineClient extends CustomEngine {
         return result
     }
 
-    setup() { 
-        return new Promise<void>( (resolve, reject) => {
-            if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
-                ui.log('Starting G4F server...')
-                this.g4f_server_status = true
-                exec('www/addons/openai/lib/python/g4f_inference.exe', (error, stdout, stderr) => { 
-                    if (error) { 
-                        console.error(`exec error: ${error}`);
-                        return reject(error);
-                    }
-                    console.log(`stdout: ${stdout}`);
-                    console.error(`stderr: ${stderr}`);
-                    if (stdout.includes('Uvicorn running on')) { resolve() }
-                })
-
-            } else { resolve() }
-
-        })
+    async setup() { 
+        if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
+            ui.log('Starting G4F server...')
+            this.g4f_server_status = true
+            return await PythonShell.run('g4f_inference.pyz', options);
+        }
     }
 
 }
