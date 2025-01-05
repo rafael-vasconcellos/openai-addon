@@ -1,7 +1,7 @@
 {
-  "name": "gemini-addon",
-  "title": "Gemini",
-  "description": "Google's gemini support for Translator++.",
+  "name": "openai-addon",
+  "title": "OpenAI",
+  "description": "OpenAI/g4f support for Translator++.",
   "icon": "icon.png",
   "author": "github.com/rafael-vasconcellos",
   "version": "1.0.0",
