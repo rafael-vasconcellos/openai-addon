@@ -8,25 +8,34 @@ import { downloadFile, unzipFile } from './python.download.mjs';
 
 const entryPoints = Object.keys(_package.dependencies).map(dep => 
     path.resolve('node_modules', dep)
-);
+).filter(dep => !dep.endsWith('openai'));
 
 const distDir = './dist/openai/';
 
+const build_options = {
+    entryPoints, 
+    target: 'ES2021',
+    bundle: true,
+    minify: false,  // mantém o código legível
+    format: 'cjs', 
+    outdir: distDir + 'lib',
+    keepNames: true, // preserva nomes de variáveis/funções
+    platform: 'node', 
+    external: ['fsevents', 'node:*'], // Evita que o esbuild tente resolver alguns imports problemáticos
+  
+    //sourcemap: true, 
+    //splitting: true, 
+}
 
-esbuild.build({
-  entryPoints, 
-  target: 'node15',
-  bundle: true,
-  minify: false,  // mantém o código legível
-  format: 'cjs', 
-  outdir: distDir + 'lib',
-  keepNames: true, // preserva nomes de variáveis/funções
-  platform: 'node', 
-  external: ['fsevents', 'node:*'], // Evita que o esbuild tente resolver alguns imports problemáticos
+const openai_options = {
+    ...build_options,
+    entryPoints: [ path.resolve('node_modules', 'openai') ],
+    platform: 'browser'
+};
 
-  //sourcemap: true, 
-  //splitting: true, 
-}).then(() => {
+
+Promise.all([ esbuild.build(build_options), esbuild.build(openai_options) ])
+.then(() => {
     const files = [
         { src: './package.json', dest: distDir + 'package.json' },
         { src: './icon.png', dest: distDir + 'icon.png' },
