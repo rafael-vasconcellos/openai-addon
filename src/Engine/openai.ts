@@ -117,7 +117,7 @@ class EngineClient extends CustomEngine {
 
         const response_text = response.choices[0].message.content ?? ""
         const result = await parseResponse(response_text)
-        if (result.length !== texts.length) { 
+        if (result.length !== texts.length || !(result instanceof Array)) { 
             const message = result.length === 0? 
 				"Failed to parse: " + response_text 
 				: `Unexpected error: length ${result.length} out of ${texts.length}.` + '\n\n' + response_text;
