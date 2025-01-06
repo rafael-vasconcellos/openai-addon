@@ -29,7 +29,7 @@ const build_options = {
 
 const openai_options = {
     ...build_options,
-    entryPoints: [ path.resolve('node_modules', 'openai') ],
+    entryPoints: [ path.resolve('node_modules', 'openai'), path.resolve('node_modules', 'openai/helpers/zod') ],
     platform: 'browser'
 };
 

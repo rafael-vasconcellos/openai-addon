@@ -3,6 +3,8 @@ import { ICustomEngineModule } from './custom';
 const path = require('path') as typeof import('path');
 const { spawn } = require('child_process') as typeof import('child_process');
 const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
+const { zodResponseFormat } = require('www/addons/openai/lib/openai/helpers/zod.js') as typeof import('openai/helpers/zod');
+const { z } = require('www/addons/openai/lib/zod.js') as typeof import('zod');
 const { CustomEngine, TranslationFailException } = require("www/addons/openai/Engine/custom.js") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/Engine/Prompt.js") as IPromptModule;
 
@@ -12,6 +14,12 @@ const pythonPath = path.resolve('www/addons/openai/lib/python/python.exe')
 const scriptDirPath = path.resolve('www/addons/openai/lib')
 const scriptPath = path.join(scriptDirPath, 'g4f_inference.pyz')
 
+const batchSize = 25
+const responseSchema: Record<string, any> = {}
+for (let i=0; i<batchSize; i++) { 
+    responseSchema[`${i}`] = z.string().nonempty()
+}
+
 class EngineClient extends CustomEngine { 
     private readonly default_base_url = "http://localhost:1337/v1"
     private g4f_server_status = false
@@ -20,7 +28,7 @@ class EngineClient extends CustomEngine {
     get base_url(): string { return this.getEngine()?.getOptions('base_url') ?? this.default_base_url }
 
     constructor(thisAddon: Addon) { 
-        trans.config.maxRequestLength = 25
+        trans.config.maxRequestLength = batchSize
         super({ 
             id: thisAddon.package.name,
             name: thisAddon.package.title,
@@ -98,7 +106,8 @@ class EngineClient extends CustomEngine {
                     role: "user",
                     content: userPrompt(texts)
                 }
-            ]
+            ],
+            response_format: zodResponseFormat(z.object(responseSchema), 'json_schema'),
         }).catch(e => { 
             throw new TranslationFailException({
                 message: "Error while fetching.",
