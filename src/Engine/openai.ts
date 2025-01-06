@@ -65,7 +65,13 @@ class EngineClient extends CustomEngine {
                         description: "Choose the model.",
                         default: "gpt-4o",
                         required: false,
-                        enum: ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-002", "gemini-1.5-pro-002", "gemini-2.0-flash-exp"]
+                        enum: [
+                            "gpt-4o", "gpt-4o-mini", "o1", "o1-preview", "o1-mini", 
+                            "claude-3.5-sonnet", "claude-3-opus", 
+                            "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-thinking", 
+                            "meta-ai", "llama-3.1-70b", "llama-3.2-11b", "llama-3.2-90b", "llama-3.3-70b", 
+                            "command-r-plus", "qwen-2.5-72b", "deepseek-chat", "grok-2"
+                        ]
                     }
                 },
 
