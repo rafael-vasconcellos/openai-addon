@@ -113,6 +113,7 @@ class EngineClient extends CustomEngine {
                     content: userPrompt(texts)
                 }
             ],
+            temperature: 0,
             response_format: zodResponseFormat(z.object(responseSchema), 'json_schema'),
         }).catch(e => { 
             throw new TranslationFailException({
