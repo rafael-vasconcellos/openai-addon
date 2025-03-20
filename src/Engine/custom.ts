@@ -41,6 +41,7 @@ class CustomEngine {
         this.engine = new TranslatorEngine(engineOptions)
         this.engine.translate = this.translate.bind(this)
         this.engine.abort = this.clear.bind(this)
+        this.engine.fetcher = this.fetcher.bind(this)
     }
 
     get api_key(): string | null { return this.getEngine()?.getOptions('api_key') ?? null }

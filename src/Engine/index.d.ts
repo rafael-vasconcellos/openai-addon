@@ -45,6 +45,9 @@ declare class TranslatorEngine {
     targetUrl: string;
     targetUrls: Array<string>;
 
+
+    // custom
+    fetcher(texts: string[]): Promise<string[]>
     // Variables
     //[id: string]: any;
 }
