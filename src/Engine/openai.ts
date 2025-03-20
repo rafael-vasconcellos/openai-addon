@@ -70,7 +70,7 @@ class EngineClient extends CustomEngine {
                             "claude-3.5-sonnet", "claude-3-opus", 
                             "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-thinking", 
                             "meta-ai", "llama-3.1-70b", "llama-3.2-11b", "llama-3.2-90b", "llama-3.3-70b", 
-                            "command-r-plus", "qwen-2.5-72b", "deepseek-chat", "grok-2"
+                            "command-r-plus", "qwen-2.5-72b", "deepseek-chat", "deepseek-v3", "grok-2"
                         ]
                     }
                 },
@@ -92,7 +92,7 @@ class EngineClient extends CustomEngine {
         })
     }
 
-    public async fetcher(texts: string[]) { 
+    public async fetcher(texts: string[], model: string = this.model_name) { 
         await this.setup().catch(e => { 
             throw new Error(`exec error: ${e.stack}`)
         })
@@ -101,9 +101,9 @@ class EngineClient extends CustomEngine {
             apiKey: this.api_key,
             dangerouslyAllowBrowser: true
         })
-        
+
         const response = await client.chat.completions.create({ 
-            model: this.model_name,
+            model,
             messages: [ 
                 { 
                     role: "system",
