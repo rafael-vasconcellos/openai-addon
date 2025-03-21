@@ -75,3 +75,19 @@ const translateRow = async function(text: string) {
 }
 
 
+const rowsModule = { 
+    translateSelection,
+    translateRows,
+    translateRow,
+    menuItem: { 
+        name: "Translate row (OpenAI)",
+        callback: translateSelection
+    }
+}
+
+export type TranslateSelection = typeof translateSelection
+export type TranslateRows = typeof translateRows
+export type TranslateRow = typeof translateRow
+export type RowsModule = typeof rowsModule
+
+module.exports = rowsModule
