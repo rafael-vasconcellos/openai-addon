@@ -1,4 +1,9 @@
-declare type Addon = {
+interface ContextMenuItem { 
+    name: string
+    callback: CallableFunction
+}
+
+declare type Addon = { 
     optionsForm: TranslationEngineOptionForm | TranslationEngineOptionForm['schema']
     package: {
         name: string,
@@ -23,6 +28,7 @@ declare var trans: {
     }
     grid: Grid
     data: string[][]
+    gridContextMenu: Record<string, ContextMenuItem>
     keyColumn: number
     translator: TranslatorEngine[]
     evalTranslationProgress(): void

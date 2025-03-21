@@ -1,5 +1,6 @@
 import { IPromptModule } from './Prompt';
 import { ICustomEngineModule } from './custom';
+import { RowsModule } from '../submenus/rows'
 const path = require('path') as typeof import('path');
 const { spawn, exec } = require('child_process') as typeof import('child_process');
 const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
@@ -7,6 +8,7 @@ const { zodResponseFormat } = require('www/addons/openai/lib/openai/helpers/zod.
 const { z } = require('www/addons/openai/lib/zod.js') as typeof import('zod');
 const { CustomEngine, TranslationFailException } = require("www/addons/openai/Engine/custom.js") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/Engine/Prompt.js") as IPromptModule;
+const { menuItem } = require("www/addons/openai/submenus/rows.js") as RowsModule
 
 
 
@@ -38,8 +40,10 @@ class EngineClient extends CustomEngine {
     get model_name(): string { return this.getEngine()?.getOptions('model_name') ?? "gpt-4o" }
     get api_key(): string { return this.getEngine()?.getOptions('api_key') ?? "Placeholder" }
     get base_url(): string { return this.getEngine()?.getOptions('base_url') ?? this.default_base_url }
+    private setup: Promise<void>
 
     constructor(thisAddon: Addon) { 
+        trans.gridContextMenu['rowsTranslation'] = menuItem
         trans.config.maxRequestLength = batchSize
         super({ 
             id: thisAddon.package.name,
@@ -102,10 +106,11 @@ class EngineClient extends CustomEngine {
             }
 
         })
+        this.setup = this.runSetup()
     }
 
     public async fetcher(texts: string[], model: string = this.model_name) { 
-        await this.setup().catch(e => { 
+        await this.setup.catch(e => { 
             throw new Error(`exec error: ${e.stack}`)
         })
         const client = new OpenAI({ 
@@ -149,7 +154,7 @@ class EngineClient extends CustomEngine {
         return result
     }
 
-    setup() { 
+    private runSetup() { 
         return new Promise<void>( (resolve, reject) => {
             if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
                 ui.log('Starting G4F server...')
