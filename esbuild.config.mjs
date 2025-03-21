@@ -8,6 +8,7 @@ import { downloadFile, unzipFile } from './python.download.mjs';
 
 const distDir = './dist/openai/';
 const pythonURL = 'https://www.python.org/ftp/python/3.8.10/python-3.8.10-embed-amd64.zip'
+const downloadPython = "--no-download" in process.argv? false : true
 
 const entryPoints = Object.keys(_package.dependencies).map(dep => 
     path.resolve('node_modules', dep)
@@ -50,12 +51,14 @@ Promise.all([ esbuild.build(build_options), esbuild.build(openai_options) ])
     });
 
 }).then(async() => { 
-    const outputDirPath = path.resolve('./python')
-    const outputZipPath = path.resolve('./python', 'python-3.8.10-embed-amd64.zip');
-    if (!fs.existsSync(outputZipPath)) { 
-        if (!fs.existsSync(outputDirPath)) {  fs.mkdirSync(outputDirPath); }
-        await downloadFile(pythonURL, outputZipPath); 
+    if (downloadPython) { 
+        const outputDirPath = path.resolve('./python')
+        const outputZipPath = path.resolve('./python', 'python-3.8.10-embed-amd64.zip');
+        if (!fs.existsSync(outputZipPath)) { 
+            if (!fs.existsSync(outputDirPath)) {  fs.mkdirSync(outputDirPath); }
+            await downloadFile(pythonURL, outputZipPath); 
+        }
+        unzipFile(outputZipPath, path.resolve(distDir, 'lib', 'python'));
     }
-    unzipFile(outputZipPath, path.resolve(distDir, 'lib', 'python'));
 
 }).catch(e => console.log(e.stack));
