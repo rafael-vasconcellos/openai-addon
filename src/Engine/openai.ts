@@ -132,6 +132,8 @@ class EngineClient extends CustomEngine {
             ],
             temperature: 0,
             response_format: zodResponseFormat(z.object(responseSchema), 'json_schema'),
+        }, { 
+            //query: {  }
         }).catch(e => { 
             throw new TranslationFailException({
                 message: "Error while fetching.",

@@ -1,4 +1,4 @@
-const translateSelection = async function(currentSelection: Range, options = {}) { 
+const translateSelection = async function(currentSelection?: Range, options = {}) { 
 	currentSelection = currentSelection || trans.grid.getSelectedRange() || [{}];
 	const currentEngine = trans["openai-addon"];
 
@@ -35,6 +35,7 @@ const translateSelection = async function(currentSelection: Range, options = {})
 
 
 	console.log("Translate using : ",currentEngine.id);
+	trans.grid.render();
 	const stream = translateRows(preTransData)
 	for await (const response of stream) { 
 		const { index, output, inputText } = response;
@@ -42,7 +43,7 @@ const translateSelection = async function(currentSelection: Range, options = {})
 		trans.grid.render();
 		trans.evalTranslationProgress();
 	}
-	trans.textEditorSetValue(trans.getTextFromLastSelected());
+	//trans.textEditorSetValue(trans.getTextFromLastSelected());
 }
 
 
@@ -80,8 +81,8 @@ const rowsModule = {
     translateRows,
     translateRow,
     menuItem: { 
-        name: "Translate row (OpenAI)",
-        callback: translateSelection
+        name: "Translate selected (OpenAI)",
+        callback: () => translateSelection()
     }
 }
 
