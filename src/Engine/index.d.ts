@@ -1,7 +1,7 @@
 declare class TranslatorEngine {
     constructor(options: TranslationEngineOptions);
-    update(id: string, value: any);
     optionsForm: TranslationEngineOptionForm;
+    update(id: string, value: any);
     init(): void;
     on(
         eventType: string, 
@@ -9,7 +9,6 @@ declare class TranslatorEngine {
     ): void;
     escapeCharacter(sentence: string);
     escapeLineBreak(text: string);
-    id: string;
     fixTranslationFormatting(text: string);
     getOptions(...args: any[]): any;
     loadOptions(): void;
@@ -18,6 +17,7 @@ declare class TranslatorEngine {
     preProcessText(text: string, options: any);
     replacer(match, p1, p2, p3, offset, string): string;
     replacerS(match, p1, p2, p3, offset, string): string;
+    id: string;
     maxRequestLength: number;
     batchDelay: number;
 
@@ -44,10 +44,12 @@ declare class TranslatorEngine {
 
     targetUrl: string;
     targetUrls: Array<string>;
+    isDisabled: boolean
+    skipReferencePair: boolean
 
 
     // custom
-    fetcher(texts: string[]): Promise<string[]>
+    fetcher(texts: string[], model: string): Promise<string[]>
     // Variables
     //[id: string]: any;
 }
