@@ -1,7 +1,7 @@
 import { IPromptModule } from './Prompt';
 import { ICustomEngineModule } from './custom';
 const path = require('path') as typeof import('path');
-const { spawn } = require('child_process') as typeof import('child_process');
+const { spawn, exec } = require('child_process') as typeof import('child_process');
 const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
 const { zodResponseFormat } = require('www/addons/openai/lib/openai/helpers/zod.js') as typeof import('openai/helpers/zod');
 const { z } = require('www/addons/openai/lib/zod.js') as typeof import('zod');
@@ -10,7 +10,6 @@ const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/E
 
 
 
-const pythonPath = path.resolve('www/addons/openai/lib/python/python.exe')
 const scriptDirPath = path.resolve('www/addons/openai/lib')
 const scriptPath = path.join(scriptDirPath, 'g4f_inference.pyz')
 
@@ -19,6 +18,19 @@ const responseSchema: Record<string, any> = {}
 for (let i=0; i<batchSize; i++) { 
     responseSchema[`${i}`] = z.string().nonempty()
 }
+
+function getPythonPath() {
+    let result = 'www/addons/openai/lib/python/python.exe'
+    exec("where python", (erro, stdout, stderr) => {
+        if (erro || stderr) { //console.log("Python não encontrado.");
+            return;
+        }
+        
+        result = stdout.trim()
+    });
+    return path.resolve(result)
+}
+
 
 class EngineClient extends CustomEngine { 
     private readonly default_base_url = "http://localhost:1337/v1"
@@ -142,7 +154,8 @@ class EngineClient extends CustomEngine {
             if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
                 ui.log('Starting G4F server...')
                 this.g4f_server_status = true
-                const child = spawn(pythonPath, [scriptPath])
+
+                const child = spawn(getPythonPath(), [scriptPath])
                 child.on('close', () => { this.g4f_server_status = false })
                 const interval = setInterval(() => { 
                     fetch(this.base_url).then(response => { 
