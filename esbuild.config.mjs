@@ -1,15 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import * as esbuild from 'esbuild';
-import _package from './package.json' assert { type: "json" };
-import { downloadFile, unzipFile } from './python.download.mjs';
-//import { unzip } from 'zlib';
+//import _package from './package.json' assert { type: "json" };
+import { downloadFile, unzipFile } from './python.download.utils.mjs';
 
 
 const distDir = './dist/openai/';
 const pythonURL = 'https://www.python.org/ftp/python/3.8.10/python-3.8.10-embed-amd64.zip'
 const downloadPython = "--no-download" in process.argv? false : true
 
+const _package = JSON.parse(fs.readFileSync('./package.json'))
 const entryPoints = Object.keys(_package.dependencies).map(dep => 
     path.resolve('node_modules', dep)
 ).filter(dep => !dep.endsWith('openai'));
