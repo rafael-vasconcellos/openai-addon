@@ -21,17 +21,15 @@ for (let i=0; i<batchSize; i++) {
     responseSchema[`${i}`] = z.string().nonempty()
 }
 
-function getPythonPath() {
-    let result = 'www/addons/openai/lib/python/python.exe'
-    exec("where python", (erro, stdout, stderr) => {
-        if (erro || stderr) { //console.log("Python não encontrado.");
-            return;
+function getPythonPath() { return new Promise<string>(resolve => { 
+    exec("where python", (error, stdout, stderr) => {
+        if (error || stderr) { 
+            const pythonPath = path.resolve('www/addons/openai/lib/python/python.exe')
+            resolve(pythonPath)
         }
-        
-        result = "python" //stdout.trim()
+        else if (stdout) { resolve("python") } //stdout.trim()
     });
-    return path.resolve(result)
-}
+})}
 
 
 class EngineClient extends CustomEngine { 
@@ -161,9 +159,9 @@ class EngineClient extends CustomEngine {
         return result
     }
 
-    private setup() { return new Promise<void>( (resolve, reject) => { 
-        const spawnChild = () => { 
-            const child = spawn(getPythonPath(), [scriptPath])
+    private setup() { return new Promise<void>((resolve, reject) => { 
+        const spawnChild = async() => { 
+            const child = spawn(await getPythonPath(), [scriptPath])
             child.on('close', () => { this.g4f_server_status = false })
         }
 
