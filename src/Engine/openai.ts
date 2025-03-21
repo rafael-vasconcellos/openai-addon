@@ -28,7 +28,7 @@ function getPythonPath() {
             return;
         }
         
-        result = stdout.trim()
+        result = "python" //stdout.trim()
     });
     return path.resolve(result)
 }
@@ -40,7 +40,7 @@ class EngineClient extends CustomEngine {
     get model_name(): string { return this.getEngine()?.getOptions('model_name') ?? "gpt-4o" }
     get api_key(): string { return this.getEngine()?.getOptions('api_key') ?? "Placeholder" }
     get base_url(): string { return this.getEngine()?.getOptions('base_url') ?? this.default_base_url }
-    private setup: Promise<void>
+    private interval?: NodeJS.Timeout | null
 
     constructor(thisAddon: Addon) { 
         trans.gridContextMenu['rowsTranslation'] = menuItem
@@ -102,15 +102,20 @@ class EngineClient extends CustomEngine {
                         key: "target_language"
                     }, 
                 ],
-                onChange: (elm: HTMLInputElement, key: string, value: unknown) => { this.update(key, value) }
+                onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
+                    if (key === "base_url" && value === this.default_base_url && !this.g4f_server_status) { 
+                        this.setup()
+                    }
+                    this.update(key, value) 
+                }
             }
 
         })
-        this.setup = this.runSetup()
+        this.setup()
     }
 
     public async fetcher(texts: string[], model: string = this.model_name) { 
-        await this.setup.catch(e => { 
+        await this.setup().catch(e => { 
             throw new Error(`exec error: ${e.stack}`)
         })
         const client = new OpenAI({ 
@@ -156,27 +161,30 @@ class EngineClient extends CustomEngine {
         return result
     }
 
-    private runSetup() { 
-        return new Promise<void>( (resolve, reject) => {
-            if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
-                ui.log('Starting G4F server...')
-                this.g4f_server_status = true
+    private setup() { return new Promise<void>( (resolve, reject) => { 
+        const spawnChild = () => { 
+            const child = spawn(getPythonPath(), [scriptPath])
+            child.on('close', () => { this.g4f_server_status = false })
+        }
 
-                const child = spawn(getPythonPath(), [scriptPath])
-                child.on('close', () => { this.g4f_server_status = false })
-                const interval = setInterval(() => { 
-                    fetch(this.base_url).then(response => { 
-                        if (response.ok) { 
-                            clearInterval(interval)
-                            resolve()
-                        }
-                    })
-                }, 1000)
+        if (this.base_url === this.default_base_url && !this.g4f_server_status) { 
+            ui.log('Starting G4F server...')
+            if (!this.interval) { spawnChild() }
+            else { clearInterval(this.interval) }
+            this.interval = setInterval(() => { 
+                fetch(this.base_url).then(response => { 
+                    if (response.ok) { 
+                        clearInterval(this.interval!)
+                        this.interval = null
+                        this.g4f_server_status = true
+                        resolve()
+                    }
+                })
+            }, 1000)
 
-            } else { resolve() }
+        } else { resolve() }
 
-        })
-    }
+    })}
 
 }
 
