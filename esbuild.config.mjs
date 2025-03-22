@@ -24,7 +24,7 @@ const build_options = {
     keepNames: true, // preserva nomes de variáveis/funções
     platform: 'node', 
     external: ['fsevents', 'node:*'], // Evita que o esbuild tente resolver alguns imports problemáticos
-  
+    //outExtension: { '.js': '.js' },
     //sourcemap: true, 
     //splitting: true, 
 }

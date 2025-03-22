@@ -4,3 +4,5 @@ build
 g4f-inference.spec
 s.pyz
 python
+.vitest
+.rollup

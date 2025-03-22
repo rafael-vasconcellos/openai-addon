@@ -97,16 +97,17 @@
     // "allowUnreachableCode": true,                     /* Disable error reporting for unreachable code. */
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
+    "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true, /* Skip type checking all .d.ts files. */
     "outDir": "./dist/openai",
     "baseUrl": "./src",
     "paths": { 
-       "openai": ["www/addons/openai/lib/openai"],
-       //"openai*": ["www/addons/openai/lib/openai*"],
-       "zod": ["www/addons/openai/lib/zod"],
-       "jsonrepair": ["www/addons/openai/lib/jsonrepair.js"]
+      "jsonrepair": ["./lib/jsonrepair"],
+       "openai": ["./lib/openai"],
+       "zod": ["./lib/zod"],
+       "src/*": ["www/addons/openai/*"]
     }
   },
 
-  //
+  "exclude": ["./tests"]
 }
