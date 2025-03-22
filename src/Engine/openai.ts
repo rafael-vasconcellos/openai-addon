@@ -3,12 +3,12 @@ import { ICustomEngineModule } from './custom';
 import { RowsModule } from '../submenus/rows'
 const path = require('path') as typeof import('path');
 const { spawn, exec } = require('child_process') as typeof import('child_process');
-const { OpenAI } = require('www/addons/openai/lib/openai.js') as typeof import('openai');
-const { zodResponseFormat } = require('www/addons/openai/lib/openai/helpers/zod.js') as typeof import('openai/helpers/zod');
-const { z } = require('www/addons/openai/lib/zod.js') as typeof import('zod');
-const { CustomEngine, TranslationFailException } = require("www/addons/openai/Engine/custom.js") as ICustomEngineModule;
-const { systemPrompt, userPrompt, parseResponse } = require("www/addons/openai/Engine/Prompt.js") as IPromptModule;
-const { menuItem } = require("www/addons/openai/submenus/rows.js") as RowsModule
+const { OpenAI } = require('openai') as typeof import('openai');
+const { zodResponseFormat } = require('openai/helpers/zod') as typeof import('openai/helpers/zod');
+const { z } = require('zod') as typeof import('zod');
+const { CustomEngine, TranslationFailException } = require("./custom") as ICustomEngineModule;
+const { systemPrompt, userPrompt, parseResponse } = require("./Prompt") as IPromptModule;
+const { menuItem } = require("../submenus/rows") as RowsModule
 
 
 
