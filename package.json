@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc && node esbuild.config.mjs",
     "pack": "shiv -o ./dist/openai/lib/g4f_inference.pyz -e g4f_inference.main:main -r ./src/py/requirements.txt ./src/py",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "keywords": [],
   "license": "MIT",
