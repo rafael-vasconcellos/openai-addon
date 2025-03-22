@@ -1,7 +1,7 @@
 const models = ['gemini-2.0-flash', 'qwen-2.5-72b', 'deepseek-v3', 'gpt-4o']
 
 const translateSelection = async function(currentSelection?: Range, options = {}) { 
-	currentSelection = currentSelection || trans.grid.getSelectedRange() || [{}];
+	currentSelection = currentSelection || trans.grid.getSelectedRange() || [{}] as unknown as Range;
 	const currentEngine = trans["openai-addon"];
 
 	if (typeof currentSelection == 'undefined') {

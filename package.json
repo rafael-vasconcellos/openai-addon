@@ -3,7 +3,9 @@
   "title": "OpenAI",
   "description": "OpenAI/g4f support for Translator++.",
   "icon": "icon.png",
-  "author": "github.com/rafael-vasconcellos",
+  "author": { 
+     "name": "github.com/rafael-vasconcellos"
+  },
   "version": "1.0.0",
   "main": "main.js",
   "autoload": false,
@@ -11,7 +13,7 @@
     "main.js"
   ],
   "scripts": {
-    "build": "tsc && node esbuild.config.mjs",
+    "build": "tsc && tsc-alias && node esbuild.config.mjs",
     "pack": "shiv -o ./dist/openai/lib/g4f_inference.pyz -e g4f_inference.main:main -r ./src/py/requirements.txt ./src/py",
     "test": "vitest"
   },
@@ -26,6 +28,7 @@
     "@types/node": "^22.9.1",
     "axios": "^1.7.9",
     "esbuild": "^0.25.1",
+    "tsc-alias": "^1.8.11",
     "typescript": "^5.6.3",
     "unzipper": "^0.12.3",
     "vitest": "^3.0.9"

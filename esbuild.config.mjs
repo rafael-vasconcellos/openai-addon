@@ -62,3 +62,19 @@ Promise.all([ esbuild.build(build_options), esbuild.build(openai_options) ])
     }
 
 }).catch(e => console.log(e.stack));
+
+
+const default_options = {
+    entryPoints: ['input.js'], // Seu arquivo de entrada
+    format: 'esm',             // Manter como ES Modules (ou 'cjs' para CommonJS)
+
+    bundle: false,             // Não agrupar módulos
+    minify: false,             // Não minimizar
+    sourcemap: false,          // Sem sourcemaps
+    target: ['esnext'],        // Evita transpilações
+    keepNames: true,           // Mantém nomes de funções e classes
+    treeShaking: false,        // Não remover código não utilizado
+    legalComments: 'none',     // Remove comentários automáticos de licenças
+    charset: 'utf8',           // Mantém a codificação UTF-8 sem conversões
+}
+
