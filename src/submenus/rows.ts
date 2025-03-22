@@ -1,3 +1,5 @@
+const models = ['gemini-2.0-flash', 'qwen-2.5-72b', 'deepseek-v3', 'gpt-4o']
+
 const translateSelection = async function(currentSelection?: Range, options = {}) { 
 	currentSelection = currentSelection || trans.grid.getSelectedRange() || [{}];
 	const currentEngine = trans["openai-addon"];
@@ -47,6 +49,25 @@ const translateSelection = async function(currentSelection?: Range, options = {}
 }
 
 
+const translateRowsBatch = async function*(texts: string[]) { 
+	const promises = models.map(model => { 
+		if (!model) { return Promise.resolve([""]) }
+		return trans["openai-addon"]?.fetcher(texts, model)
+		.catch(e => { //alert(e.stack)
+			return [""]
+		})
+	})
+
+	const responses = await Promise.all(promises)
+	for (let i=0; i<texts.length; i++) { 
+		yield { 
+			inputText: texts[i],
+			output: responses.map(response => response[i]),
+			index: trans.data.findIndex(row => row[0] === texts[i])
+		}
+	}
+}
+
 const translateRows = async function*(texts: string[]) { 
     for (const text of texts) {
         const result = await translateRow(text)
@@ -55,7 +76,6 @@ const translateRows = async function*(texts: string[]) {
 }
 
 const translateRow = async function(text: string) { 
-	const models = ['gemini-2.0-flash', 'qwen-2.5-72b', 'deepseek-v3', 'gpt-4o']
 	const promises = models.map(model => { 
 		if (!model) { return Promise.resolve("") }
 		return trans["openai-addon"]?.fetcher([text], model)
@@ -80,6 +100,7 @@ const rowsModule = {
     translateSelection,
     translateRows,
     translateRow,
+	translateRowsBatch,
     menuItem: { 
         name: "Translate selected (OpenAI)",
         callback: () => translateSelection()
@@ -89,6 +110,7 @@ const rowsModule = {
 export type TranslateSelection = typeof translateSelection
 export type TranslateRows = typeof translateRows
 export type TranslateRow = typeof translateRow
+export type TranslateRowsBatch = typeof translateRowsBatch
 export type RowsModule = typeof rowsModule
 
 module.exports = rowsModule
