@@ -100,7 +100,7 @@
     "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true, /* Skip type checking all .d.ts files. */
     "outDir": "./dist/openai",
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": { 
       "jsonrepair": ["./lib/jsonrepair"],
        "openai": ["./lib/openai"],
@@ -109,5 +109,5 @@
     }
   },
 
-  "exclude": ["./tests"]
+  "exclude": ["./tests", "./*.ts"]
 }
