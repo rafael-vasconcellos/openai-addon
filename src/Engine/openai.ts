@@ -48,7 +48,8 @@ class EngineClient extends CustomEngine {
             name: thisAddon.package.title,
             description: thisAddon.package.description,
             version: thisAddon.package.version,
-            author: thisAddon.package.author?.name ?? thisAddon.package.author.name ?? '',
+            author: typeof thisAddon.package.author === 'object'? 
+                thisAddon.package.author.name : thisAddon.package.author ?? '',
             maxRequestLength: trans.config.maxRequestLength,
             batchDelay: 1, // 0 is a falsy value, it'll be reverted to the default value (5000)
             optionsForm: { 

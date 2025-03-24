@@ -13,7 +13,7 @@
     "main.js"
   ],
   "scripts": {
-    "build": "tsc && tsc-alias && node esbuild.config.mjs",
+    "build": "tsc && node esbuild.config.mjs && tsc-alias",
     "pack": "shiv -o ./dist/openai/lib/g4f_inference.pyz -e g4f_inference.main:main -r ./src/py/requirements.txt ./src/py",
     "test": "vitest",
     "test:node": "node --test ./tests/**/*.spec.*"

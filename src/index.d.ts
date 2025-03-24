@@ -9,7 +9,7 @@ declare type Addon = {
         name: string,
         author: {
             name: string
-        },
+        } | string,
         version: string,
         description: string,
         title: string
