@@ -1,116 +1,139 @@
-const models = ['gemini-2.0-flash', 'qwen-2.5-72b', 'deepseek-v3', 'gpt-4o']
+interface TranslateSelectionOptions { 
+	clientBuild: ClientBuilder
+	models: string[]
+	package_name: string
+}
 
-const translateSelection = async function(currentSelection?: Range, options = {}) { 
-	currentSelection = currentSelection || trans.grid.getSelectedRange() || [{}] as unknown as Range;
-	const currentEngine = trans["openai-addon"];
+type ClientBuilder = (options: Record<string, any>) => IClient
 
-	if (typeof currentSelection == 'undefined') {
-		alert(t("nothing is selected"));
-		return false;
+interface IClient { 
+	generate(texts: string[], model: string, target_language?: string): Promise<string[]>
+}
+
+
+
+
+class Client implements IClient { 
+	constructor(public package_name: string) {}
+	generate(texts: string[], model: string, _?: string): Promise<string[]> {
+		return trans[this.package_name]?.fetcher(texts, model)
 	}
-	if (typeof trans.translator == "undefined" || trans.translator.length < 1) {
-		alert(t("no translator loaded"));
-		return false;
+}
+
+class TranslateSelection { 
+	private client: IClient
+	private models: string[]
+	constructor(options: TranslateSelectionOptions) { 
+		this.client = new Client(options.package_name)
+		this.models = options.models
 	}
 
-	if (currentEngine.isDisabled == true) return alert(currentEngine.id+" is disabled!");
+	async translate() { 
+		return this.translateSelectedRows()
+		.catch(e => alert(e?.stack))
+	}
 
-
-	const thisData = trans.grid.getData();
-	const rowPool = common.gridSelectedCells() || [];
-	const tempTextPool = new Set<string>();
-	for (const cell of rowPool) {
-		const text = thisData[cell.row][trans.keyColumn];
-		if (text && !tempTextPool.has(text)) { 
-			tempTextPool.add(text)
-			trans.data[cell.row] = [text, ...Array(4).fill("Fetching...")]
+	async translateSelectedRows(currentSelection?: Range) { 
+		currentSelection = currentSelection || trans.grid.getSelectedRange() || [{}] as unknown as Range;
+		const currentEngine = trans["openai-addon"];
+	
+		if (typeof currentSelection == 'undefined') {
+			alert(t("nothing is selected"));
+			return false;
 		}
-	}
-	if (!tempTextPool.size) return;
-
-	var preTransData;
-	if (currentEngine.skipReferencePair) {
-		preTransData = [...tempTextPool];
-	} else {
-		preTransData = trans.translateByReference([ ...tempTextPool ]);
-	}
-
-
-	console.log("Translate using : ",currentEngine.id);
-	trans.grid.render();
-	const stream = translateRows(preTransData)
-	for await (const response of stream) { 
-		const { index, output, inputText } = response;
-		trans.data[index] = [inputText, ...output];
+		if (typeof trans.translator == "undefined" || trans.translator.length < 1) {
+			alert(t("no translator loaded"));
+			return false;
+		}
+	
+		if (currentEngine.isDisabled == true) return alert(currentEngine.id+" is disabled!");
+	
+	
+		const thisData = trans.grid.getData();
+		const rowPool = common.gridSelectedCells() || [];
+		const tempTextPool = new Set<string>();
+		for (const cell of rowPool) {
+			const text = thisData[cell.row][trans.keyColumn];
+			if (text && !tempTextPool.has(text)) { 
+				tempTextPool.add(text)
+				trans.data[cell.row] = [text, ...Array(4).fill("Fetching...")]
+			}
+		}
+		if (!tempTextPool.size) return;
+	
+		var preTransData;
+		if (currentEngine.skipReferencePair) {
+			preTransData = [...tempTextPool];
+		} else {
+			preTransData = trans.translateByReference([ ...tempTextPool ]);
+		}
+	
+	
+		console.log("Translate using : ",currentEngine.id);
 		trans.grid.render();
-		trans.evalTranslationProgress();
+		const stream = this.translateRows(preTransData)
+		for await (const response of stream) { 
+			const { index, output, inputText } = response;
+			trans.data[index] = [inputText, ...output];
+			trans.grid.render();
+			trans.evalTranslationProgress();
+		}
+		//trans.textEditorSetValue(trans.getTextFromLastSelected());
 	}
-	//trans.textEditorSetValue(trans.getTextFromLastSelected());
-}
 
-
-const translateRowsBatch = async function*(texts: string[]) { 
-	const promises = models.map(model => { 
-		if (!model) { return Promise.resolve([""]) }
-		return trans["openai-addon"]?.fetcher(texts, model)
-		.catch(e => { //alert(e.stack)
-			return [""]
+	async* translateRowsBatch(texts: string[]) { 
+		const promises = this.models.map(model => { 
+			if (!model) { return Promise.resolve([""]) }
+			return this.client.generate(texts, model)
+			.catch(e => { //alert(e.stack)
+				return [""]
+			})
 		})
-	})
 
-	const responses = await Promise.all(promises)
-	for (let i=0; i<texts.length; i++) { 
-		yield { 
-			inputText: texts[i],
-			output: responses.map(response => response[i]),
-			index: trans.data.findIndex(row => row[0] === texts[i])
+		const responses = await Promise.all(promises)
+		for (let i=0; i<texts.length; i++) { 
+			yield { 
+				inputText: texts[i],
+				output: responses.map(response => response[i]),
+				index: trans.data.findIndex(row => row[0] === texts[i])
+			}
 		}
 	}
-}
 
-const translateRows = async function*(texts: string[]) { 
-    for (const text of texts) {
-        const result = await translateRow(text)
-		if (result) { yield result }
-    }
-}
-
-const translateRow = async function(text: string) { 
-	const promises = models.map(model => { 
-		if (!model) { return Promise.resolve("") }
-		return trans["openai-addon"]?.fetcher([text], model)
-		.then(result => result[0])
-		.catch(e => { //alert(e.stack)
-			return ""
-		})
-	})
-
-	const responses = await Promise.all(promises)
-	if (responses.length) { 
-		return { 
-			inputText: text,
-			output: responses,
-			index: trans.data.findIndex(row => row[0] === text)
+	async* translateRows(texts: string[]) { 
+		for (const text of texts) {
+			const result = await this.translateRow(text)
+			if (result) { yield result }
 		}
 	}
+
+	async translateRow(text: string) { 
+		const promises = this.models.map(model => { 
+			if (!model) { return Promise.resolve("") }
+			return this.client.generate([text], model)
+			.then(result => result[0])
+			.catch(e => { //alert(e.stack)
+				return ""
+			})
+		})
+
+		const responses = await Promise.all(promises)
+		if (responses.length) { 
+			return { 
+				inputText: text,
+				output: responses,
+				index: trans.data.findIndex(row => row[0] === text)
+			}
+		}
+	}
+
 }
 
 
-const rowsModule = { 
-    translateSelection,
-    translateRows,
-    translateRow,
-	translateRowsBatch,
-    menuItem: { 
-        name: "Translate selected (OpenAI)",
-        callback: () => translateSelection()
-    }
-}
 
-export type TranslateSelection = typeof translateSelection
-export type TranslateRows = typeof translateRows
-export type TranslateRow = typeof translateRow
-export type TranslateRowsBatch = typeof translateRowsBatch
+
+const rowsModule = { TranslateSelection }
 export type RowsModule = typeof rowsModule
-
 module.exports = rowsModule
+
+

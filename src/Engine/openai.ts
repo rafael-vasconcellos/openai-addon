@@ -9,7 +9,7 @@ const { zodResponseFormat } = require('openai/helpers/zod') as typeof import('op
 const { z } = require('zod') as typeof import('zod');
 const { CustomEngine, TranslationFailException } = require("./custom") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("./Prompt") as IPromptModule;
-const { menuItem } = require("../submenus/rows") as RowsModule
+const { TranslateSelection } = require("../submenus/rows") as RowsModule
 
 
 
@@ -93,7 +93,15 @@ class EngineClient extends CustomEngine {
     private interval?: NodeJS.Timeout | null
 
     constructor(thisAddon: Addon) { 
-        trans.gridContextMenu['rowsTranslation'] = menuItem
+        const translateSelection = new TranslateSelection({ 
+            clientBuild: OpenAIClient.build, 
+            models: ['gemini-2.0-flash', 'qwen-2.5-72b', 'deepseek-v3', 'gpt-4o'],
+            package_name: thisAddon.package.name
+        })
+        trans.gridContextMenu['rowsTranslation'] = { 
+            name: "Translate selected (OpenAI)",
+            callback: translateSelection.translate.bind(translateSelection)
+        }
         trans.config.maxRequestLength = batchSize
         super({ 
             id: thisAddon.package.name,
