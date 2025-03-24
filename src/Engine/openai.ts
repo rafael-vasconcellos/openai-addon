@@ -1,6 +1,7 @@
 import { IPromptModule } from './Prompt';
 import { ICustomEngineModule } from './custom';
 import { RowsModule } from '../submenus/rows'
+import { ClientOptions } from 'openai'
 const path = require('path') as typeof import('path');
 const { spawn, exec } = require('child_process') as typeof import('child_process');
 const { OpenAI } = require('openai') as typeof import('openai');
@@ -30,6 +31,53 @@ function getPythonPath() { return new Promise<string>(resolve => {
         else if (stdout) { resolve("python") } //stdout.trim()
     });
 })}
+
+class OpenAIClient extends OpenAI { 
+    constructor(options: ClientOptions) { 
+        super({ 
+            ...options,
+            dangerouslyAllowBrowser: true
+        })
+    }
+
+    async generate(texts: string[], model: string, target_language: string = "English - US") { 
+        const response = await this.chat.completions.create({ 
+            model,
+            messages: [ 
+                { 
+                    role: "system",
+                    content: systemPrompt(target_language)
+                }, { 
+                    role: "user",
+                    content: userPrompt(texts)
+                }
+            ],
+            temperature: 0,
+            response_format: zodResponseFormat(z.object(responseSchema), 'json_schema'),
+        }, { 
+            //query: {  }
+        }).catch(e => { 
+            throw new TranslationFailException({
+                message: "Error while fetching.",
+                status: 500
+            })
+        })
+
+        const response_text = response?.choices?.[0]?.message?.content ?? ""
+        const result = await parseResponse(response_text)
+        if (result.length !== texts.length || !(result instanceof Array)) { 
+            const message = result.length === 0? 
+				"Failed to parse: " + response_text 
+				: `Unexpected error: length ${result.length} out of ${texts.length}.` + '\n\n' + response_text;
+            throw new TranslationFailException({
+                message,
+                status: 200
+            }) 
+        }
+
+        return result
+    }
+}
 
 
 class EngineClient extends CustomEngine { 
@@ -117,47 +165,12 @@ class EngineClient extends CustomEngine {
         await this.setup().catch(e => { 
             throw new Error(`exec error: ${e.stack}`)
         })
-        const client = new OpenAI({ 
+        const client = new OpenAIClient({ 
             baseURL: this.base_url,
             apiKey: this.api_key,
-            dangerouslyAllowBrowser: true
         })
 
-        const response = await client.chat.completions.create({ 
-            model,
-            messages: [ 
-                { 
-                    role: "system",
-                    content: systemPrompt(this.target_language)
-                }, { 
-                    role: "user",
-                    content: userPrompt(texts)
-                }
-            ],
-            temperature: 0,
-            response_format: zodResponseFormat(z.object(responseSchema), 'json_schema'),
-        }, { 
-            //query: {  }
-        }).catch(e => { 
-            throw new TranslationFailException({
-                message: "Error while fetching.",
-                status: 500
-            })
-        })
-
-        const response_text = response.choices[0].message.content ?? ""
-        const result = await parseResponse(response_text)
-        if (result.length !== texts.length || !(result instanceof Array)) { 
-            const message = result.length === 0? 
-				"Failed to parse: " + response_text 
-				: `Unexpected error: length ${result.length} out of ${texts.length}.` + '\n\n' + response_text;
-            throw new TranslationFailException({
-                message,
-                status: 200
-            }) 
-        }
-
-        return result
+        return await client.generate(texts, model, this.target_language)
     }
 
     private setup() { return new Promise<void>((resolve, reject) => { 
@@ -188,7 +201,7 @@ class EngineClient extends CustomEngine {
 }
 
 
-const EngineModule = { EngineClient }
+const EngineModule = { EngineClient, OpenAIClient }
 export type IEngineModule = typeof EngineModule
 module.exports = EngineModule
 
