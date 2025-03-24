@@ -40,7 +40,11 @@ class OpenAIClient extends OpenAI {
         })
     }
 
-    async generate(texts: string[], model: string, target_language: string = "English - US") { 
+    public static build(options: ClientOptions): OpenAIClient { 
+        return new OpenAIClient(options)
+    }
+
+    async generate(texts: string[], model: string, target_language: string = "English - US"): Promise<string[]> { 
         const response = await this.chat.completions.create({ 
             model,
             messages: [ 
