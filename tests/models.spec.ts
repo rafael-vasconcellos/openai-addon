@@ -4,7 +4,7 @@ const { OpenAIClient } = require('../dist/openai/Engine/openai') as IEngineModul
 
 
 export const testTimeout = 0
-const models = ['gemini-2.0-flash', 'qwen-2.5-72b', 'grok-2']
+const models = ['claude-3.5-sonnet', 'qwen-2.5-72b', 'grok-3']
 
 models.forEach(async model => { 
     test(`model ${model} availability`, async() => { 

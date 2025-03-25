@@ -86,22 +86,15 @@ class OpenAIClient extends OpenAI {
 
 class EngineClient extends CustomEngine { 
     private readonly default_base_url = "http://localhost:1337/v1"
-    private g4f_server_status = false
-    get model_name(): string { return this.getEngine()?.getOptions('model_name') ?? "gpt-4o" }
-    get api_key(): string { return this.getEngine()?.getOptions('api_key') ?? "Placeholder" }
-    get base_url(): string { return this.getEngine()?.getOptions('base_url') ?? this.default_base_url }
+    public g4f_server_status = false
     private interval?: NodeJS.Timeout | null
+    public readonly package_name: string
+    get model_name(): string { return this.getEngine()?.getOptions('model_name') || "gpt-4o" }
+    get api_key(): string { return this.getEngine()?.getOptions('api_key') || "Placeholder" }
+    get base_url(): string { return this.getEngine()?.getOptions('base_url') || this.default_base_url }
+    get rows_translation_models(): string { return this.getEngine()?.getOptions('rows_translation_models') || 'command-r-plus,gemini-2.0-flash,deepseek-v3,gpt-4o' }
 
     constructor(thisAddon: Addon) { 
-        const translateSelection = new TranslateSelection({ 
-            clientBuild: OpenAIClient.build, 
-            models: ['gemini-2.0-flash', 'qwen-2.5-72b', 'deepseek-v3', 'gpt-4o'],
-            package_name: thisAddon.package.name
-        })
-        trans.gridContextMenu['rowsTranslation'] = { 
-            name: "Translate selected (OpenAI)",
-            callback: translateSelection.translate.bind(translateSelection)
-        }
         trans.config.maxRequestLength = batchSize
         super({ 
             id: thisAddon.package.name,
@@ -134,6 +127,13 @@ class EngineClient extends CustomEngine {
                         description: "If you're using the official openai API, insert your API key.",
                         required: false
                     },
+                    rows_translation_models: { 
+                        type: "string",
+                        title: "Models for rows translation",
+                        description: "Type the name of the models to use for translating entire selected rows (format: model1,model2,...)",
+                        required: false,
+                        default: 'command-r-plus,gemini-2.0-flash,deepseek-v3,gpt-4o'
+                    },
                     model_name: { 
                         type: "string",
                         title: "Model name",
@@ -159,6 +159,8 @@ class EngineClient extends CustomEngine {
                         key: "api_key"
                     }, { 
                         key: "target_language"
+                    }, { 
+                        key: "rows_translation_models"
                     }, 
                 ],
                 onChange: (elm: HTMLInputElement, key: string, value: unknown) => { 
@@ -171,6 +173,8 @@ class EngineClient extends CustomEngine {
 
         })
         this.setup()
+        this.package_name = thisAddon.package.name
+        this.setRowsTranslationContextMenu()
     }
 
     public async fetcher(texts: string[], model: string = this.model_name) { 
@@ -209,6 +213,19 @@ class EngineClient extends CustomEngine {
         } else { resolve() }
 
     })}
+
+    setRowsTranslationContextMenu() { 
+        if (this.package_name) { return }
+        const translateSelection = new TranslateSelection({ 
+            clientBuild: OpenAIClient.build, 
+            models: this.rows_translation_models.split(','),
+            package_name: this.package_name
+        })
+        trans.gridContextMenu['rowsTranslation'] = { 
+            name: "Translate selected rows (OpenAI)",
+            callback: translateSelection.translate.bind(translateSelection)
+        }
+    }
 
 }
 
