@@ -167,7 +167,7 @@ class EngineClient extends CustomEngine {
                     if (key === "base_url" && value === this.default_base_url && !this.g4f_server_status) { 
                         this.setup()
                     }
-                    this.update(key, value) 
+                    this.update(key, typeof value === "string"? value : "") 
                 }
             }
 
