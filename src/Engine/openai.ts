@@ -124,13 +124,13 @@ class EngineClient extends CustomEngine {
                     api_key: { 
                         type: "string",
                         title: "API Key",
-                        description: "If you're using the official openai API, insert your API key.",
+                        description: "If you're using a provider that requires a key, insert it here.",
                         required: false
                     },
                     rows_translation_models: { 
                         type: "string",
                         title: "Models for rows translation",
-                        description: "Type the name of the models to use for translating entire selected rows (format: model1,model2,...)",
+                        description: "Type the name of the models to use for translating entire selected rows. format: model1,model2,etc. (order matters)",
                         required: false,
                         default: 'command-r-plus,gemini-2.0-flash,deepseek-v3,gpt-4o'
                     },
