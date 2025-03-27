@@ -84,9 +84,8 @@ class TranslateSelection {
 	}
 
 	async translateRows(entries: [string, Cell][], model: string) { 
-		for (const entry of entries) {
-			this.translateRow(entry, model)
-		}
+		const promises = entries.map(entry => this.translateRow(entry, model))
+		return Promise.all(promises).then(() => true)
 	}
 
 	async translateRow([text, cell]: [string, Cell], model: string) { 
@@ -123,7 +122,9 @@ class TranslateSelection {
 
 		if (!Object.keys(tempTextPool).length) return;
 		trans.grid.render();
-		this.translateRows(Object.entries(tempTextPool), model)
+		await this.translateRows(Object.entries(tempTextPool), model)
+		trans.grid.render();
+		trans.evalTranslationProgress();
 		//trans.textEditorSetValue(trans.getTextFromLastSelected());
 	}
 
