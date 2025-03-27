@@ -218,7 +218,7 @@ class EngineClient extends CustomEngine {
         if (this.package_name) { return }
         const translateSelection = new TranslateSelection({ 
             clientBuild: OpenAIClient.build, 
-            models: this.rows_translation_models.split(','),
+            rowModels: this.rows_translation_models.split(','),
             package_name: this.package_name
         })
         trans.gridContextMenu['rowsTranslation'] = { 

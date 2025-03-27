@@ -21,14 +21,6 @@ interface CreateSubmenuInit extends TranslateSelectionOptions {
 	package_title: string
 }
 
-interface Submenu { 
-	name: string,
-	callback?: CallableFunction
-	submenu?: { 
-		items: Submenu[]
-	}
-}
-
 
 
 class Client implements IClient { 
@@ -138,9 +130,36 @@ class TranslateSelection {
 }
 
 
+function createSubmenu({ package_name, rowModels, clientBuild, package_title, models }: CreateSubmenuInit): ContextMenuItem { 
+	const translateSelection = new TranslateSelection({ 
+		package_name,
+		rowModels,
+		clientBuild,
+	})
+
+	return { 
+		name: package_title,
+		submenu: { 
+			items: [ 
+				{ 
+					key: package_name + ':rows-translation',
+					name: "Translate entire selected rows",
+					callback: translateSelection.translateSelectedRows.bind(translateSelection)
+				}, 
+				...models.map(model => ({ 
+					key: package_name + ":" + model,
+					name: "Translate selected with " + model,
+					callback: () => translateSelection.translateSelectedCells.call(translateSelection, model)
+				}))
+			]
+		}
+	}
+}
 
 
-const rowsModule = { TranslateSelection }
+
+
+const rowsModule = { TranslateSelection, createSubmenu }
 export type RowsModule = typeof rowsModule
 module.exports = rowsModule
 
