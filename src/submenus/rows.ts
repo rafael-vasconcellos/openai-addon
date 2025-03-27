@@ -10,6 +10,11 @@ interface IClient {
 	generate(texts: string[], model: string, target_language?: string): Promise<string[]>
 }
 
+interface TranslationResult { 
+	index: number
+	inputText: string
+	output: string[]
+}
 
 
 
@@ -47,12 +52,9 @@ class TranslateSelection {
 
 		if (!tempTextPool.size) return;
 		trans.grid.render();
-		const stream = this.translateRows([ ...tempTextPool ])
+		const stream = this.translateRowsBatch([ ...tempTextPool ])
 		for await (const response of stream) { 
-			const { index, output, inputText } = response;
-			trans.data[index] = [inputText, ...output];
-			trans.grid.render();
-			trans.evalTranslationProgress();
+			this.applyTranslationToTable(response)
 		}
 		//trans.textEditorSetValue(trans.getTextFromLastSelected());
 	}
@@ -76,16 +78,17 @@ class TranslateSelection {
 		}
 	}
 
-	async* translateRows(texts: string[]) { 
-		for (const text of texts) {
-			const result = await this.translateRow(text)
+	async* translateRows(texts: string[], cells: Cell[][]) { 
+		for (let i=0; i<texts.length; i++) {
+			const result = await this.translateRow(texts[i], cells[i])
 			if (result) { yield result }
 		}
 	}
 
-	async translateRow(text: string) { 
-		const promises = this.models.map(model => { 
-			if (!model) { return Promise.resolve("") }
+	async translateRow(text: string, cells: Cell[]) { 
+		const promises = cells.map(cell => { 
+			const model = this.models[cell.col]
+			if (!cell || !model) { return Promise.resolve("") }
 			return this.client.generate([text], model)
 			.then(result => result[0])
 			.catch(e => { //alert(e.stack)
@@ -101,6 +104,13 @@ class TranslateSelection {
 				index: trans.data.findIndex(row => row[0] === text)
 			}
 		}
+	}
+
+	applyTranslationToTable(result: TranslationResult) { 
+		const { index, output, inputText } = result;
+		trans.data[index] = [inputText, ...output];
+		trans.grid.render();
+		trans.evalTranslationProgress();
 	}
 
 }
