@@ -143,7 +143,7 @@ function createSubmenu({ package_name, rowModels, clientBuild, package_title, mo
 					callback: translateSelection.translateSelectedRows.bind(translateSelection)
 				}, 
 				...models.map(model => ({ 
-					key: package_name + ":" + model,
+					key: package_name + ":" + model.replaceAll(":", "-"),
 					name: "Translate selected with " + model,
 					callback: () => translateSelection.translateSelectedCells.call(translateSelection, model)
 				}))
