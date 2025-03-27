@@ -83,21 +83,16 @@ class TranslateSelection {
 		}
 	}
 
-	async translateRows(entries: [string, Cell][], model: string) { 
-		const promises = entries.map(entry => this.translateRow(entry, model))
-		return Promise.all(promises).then(() => true)
-	}
-
-	async translateRow([text, cell]: [string, Cell], model: string) { 
-		if (!cell || !model || !text) { return }
-		const response = await this.client.generate([text], model)
-		.then(result => result[0])
-		.catch(e => { //alert(e.stack)
-			return ""
+	async translateRows(texts_map: Record<string, Cell>, model: string) { 
+		const texts = Object.keys(texts_map)
+		const response = await this.client.generate(texts, model)
+		texts.forEach((text, i) => { 
+			const index = trans.data.findIndex(row => row[0] === text)
+			const cell = texts_map[text]
+			if (index>=0 && cell) { 
+				trans.data[index][cell.col] = response[i]
+			}
 		})
-
-		const index = trans.data.findIndex(row => row[0] === text)
-		trans.data[index][cell.col] = response
 	}
 
 	applyTranslationToTable(result: TranslationResult) { 
@@ -122,7 +117,7 @@ class TranslateSelection {
 
 		if (!Object.keys(tempTextPool).length) return;
 		trans.grid.render();
-		await this.translateRows(Object.entries(tempTextPool), model)
+		await this.translateRows(tempTextPool, model)
 		trans.grid.render();
 		trans.evalTranslationProgress();
 		//trans.textEditorSetValue(trans.getTextFromLastSelected());
