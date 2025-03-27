@@ -9,7 +9,7 @@ const { zodResponseFormat } = require('openai/helpers/zod') as typeof import('op
 const { z } = require('zod') as typeof import('zod');
 const { CustomEngine, TranslationFailException } = require("./custom") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("./Prompt") as IPromptModule;
-const { TranslateSelection } = require("../submenus/rows") as RowsModule
+const { TranslateSelection, createSubmenu } = require("../submenus/rows") as RowsModule
 
 
 
@@ -85,10 +85,17 @@ class OpenAIClient extends OpenAI {
 
 
 class EngineClient extends CustomEngine { 
+    public static models = [
+        "gpt-4o", "gpt-4o-mini", "o1", "o1-mini", 
+        "deepseek-chat", "deepseek-v3", "deepseek-R1", "command-r-plus", "qwen-2.5-72b", 
+        "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-thinking", 
+        "claude-3.5-sonnet", "claude-3-opus", 
+    ]
     private readonly default_base_url = "http://localhost:1337/v1"
     public g4f_server_status = false
     private interval?: NodeJS.Timeout | null
     public readonly package_name: string
+    public readonly package_title: string
     get model_name(): string { return this.getEngine()?.getOptions('model_name') || "gpt-4o" }
     get api_key(): string { return this.getEngine()?.getOptions('api_key') || "Placeholder" }
     get base_url(): string { return this.getEngine()?.getOptions('base_url') || this.default_base_url }
@@ -140,13 +147,7 @@ class EngineClient extends CustomEngine {
                         description: "Choose the model.",
                         default: "gpt-4o",
                         required: false,
-                        enum: [
-                            "gpt-4o", "gpt-4o-mini", "o1", "o1-preview", "o1-mini", 
-                            "claude-3.5-sonnet", "claude-3-opus", 
-                            "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-thinking", 
-                            "meta-ai", "llama-3.1-70b", "llama-3.2-11b", "llama-3.2-90b", "llama-3.3-70b", 
-                            "command-r-plus", "qwen-2.5-72b", "deepseek-chat", "deepseek-v3", "grok-2"
-                        ]
+                        enum: EngineClient.models
                     }
                 },
 
@@ -174,6 +175,7 @@ class EngineClient extends CustomEngine {
         })
         this.setup()
         this.package_name = thisAddon.package.name
+        this.package_title = thisAddon.package.title
         this.setRowsTranslationContextMenu()
     }
 
@@ -215,16 +217,14 @@ class EngineClient extends CustomEngine {
     })}
 
     setRowsTranslationContextMenu() { 
-        if (this.package_name) { return }
-        const translateSelection = new TranslateSelection({ 
+        if (!this.package_name || !this.package_title || !this.rows_translation_models) { return }
+        trans.gridContextMenu[this.package_name] = createSubmenu({ 
             clientBuild: OpenAIClient.build, 
             rowModels: this.rows_translation_models.split(','),
-            package_name: this.package_name
+            package_name: this.package_name,
+            package_title: this.package_title,
+            models: EngineClient.models
         })
-        trans.gridContextMenu['rowsTranslation'] = { 
-            name: "Translate selected rows (OpenAI)",
-            callback: translateSelection.translate.bind(translateSelection)
-        }
     }
 
 }
