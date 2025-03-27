@@ -1,4 +1,4 @@
-interface TranslateSelectionOptions { 
+interface SelectionTranslatorOptions { 
 	clientBuild: ClientBuilder
 	rowModels: string[]
 	package_name: string
@@ -16,7 +16,7 @@ interface TranslationResult {
 	output: string[]
 }
 
-interface CreateSubmenuInit extends TranslateSelectionOptions { 
+interface CreateSubmenuInit extends SelectionTranslatorOptions { 
 	models: string[]
 	package_title: string
 }
@@ -30,10 +30,10 @@ class Client implements IClient {
 	}
 }
 
-class TranslateSelection { 
+class SelectionTranslator { 
 	private client: IClient
 	private rowModels: string[]
-	constructor(options: TranslateSelectionOptions) { 
+	constructor(options: SelectionTranslatorOptions) { 
 		this.client = new Client(options.package_name)
 		this.rowModels = options.rowModels
 	}
@@ -127,7 +127,7 @@ class TranslateSelection {
 
 
 function createSubmenu({ package_name, rowModels, clientBuild, package_title, models }: CreateSubmenuInit): ContextMenuItem { 
-	const translateSelection = new TranslateSelection({ 
+	const translateSelection = new SelectionTranslator({ 
 		package_name,
 		rowModels,
 		clientBuild,
@@ -155,7 +155,7 @@ function createSubmenu({ package_name, rowModels, clientBuild, package_title, mo
 
 
 
-const rowsModule = { TranslateSelection, createSubmenu }
+const rowsModule = { SelectionTranslator, createSubmenu }
 export type RowsModule = typeof rowsModule
 module.exports = rowsModule
 

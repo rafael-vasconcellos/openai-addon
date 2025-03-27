@@ -9,7 +9,7 @@ const { zodResponseFormat } = require('openai/helpers/zod') as typeof import('op
 const { z } = require('zod') as typeof import('zod');
 const { CustomEngine, TranslationFailException } = require("./custom") as ICustomEngineModule;
 const { systemPrompt, userPrompt, parseResponse } = require("./Prompt") as IPromptModule;
-const { TranslateSelection, createSubmenu } = require("../submenus/rows") as RowsModule
+const { createSubmenu } = require("../submenus/rows") as RowsModule
 
 
 
