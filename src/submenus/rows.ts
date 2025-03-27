@@ -33,22 +33,7 @@ class TranslateSelection {
 		.catch(e => alert(e?.stack))
 	}
 
-	async translateSelectedRows(currentSelection?: Range) { 
-		currentSelection = currentSelection || trans.grid.getSelectedRange() || [{}] as unknown as Range;
-		const currentEngine = trans["openai-addon"];
-	
-		if (typeof currentSelection == 'undefined') {
-			alert(t("nothing is selected"));
-			return false;
-		}
-		if (typeof trans.translator == "undefined" || trans.translator.length < 1) {
-			alert(t("no translator loaded"));
-			return false;
-		}
-	
-		if (currentEngine.isDisabled == true) return alert(currentEngine.id+" is disabled!");
-	
-	
+	async translateSelectedRows() { 
 		const thisData = trans.grid.getData();
 		const rowPool = common.gridSelectedCells() || [];
 		const tempTextPool = new Set<string>();
@@ -59,19 +44,10 @@ class TranslateSelection {
 				trans.data[cell.row] = [text, ...Array(4).fill("Fetching...")]
 			}
 		}
+
 		if (!tempTextPool.size) return;
-	
-		var preTransData;
-		if (currentEngine.skipReferencePair) {
-			preTransData = [...tempTextPool];
-		} else {
-			preTransData = trans.translateByReference([ ...tempTextPool ]);
-		}
-	
-	
-		console.log("Translate using : ",currentEngine.id);
 		trans.grid.render();
-		const stream = this.translateRows(preTransData)
+		const stream = this.translateRows([ ...tempTextPool ])
 		for await (const response of stream) { 
 			const { index, output, inputText } = response;
 			trans.data[index] = [inputText, ...output];
