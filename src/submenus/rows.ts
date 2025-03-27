@@ -1,6 +1,6 @@
 interface TranslateSelectionOptions { 
 	clientBuild: ClientBuilder
-	models: string[]
+	rowModels: string[]
 	package_name: string
 }
 
@@ -16,6 +16,19 @@ interface TranslationResult {
 	output: string[]
 }
 
+interface CreateSubmenuInit extends TranslateSelectionOptions { 
+	models: string[]
+	package_title: string
+}
+
+interface Submenu { 
+	name: string,
+	callback?: CallableFunction
+	submenu?: { 
+		items: Submenu[]
+	}
+}
+
 
 
 class Client implements IClient { 
@@ -27,10 +40,10 @@ class Client implements IClient {
 
 class TranslateSelection { 
 	private client: IClient
-	private models: string[]
+	private rowModels: string[]
 	constructor(options: TranslateSelectionOptions) { 
 		this.client = new Client(options.package_name)
-		this.models = options.models
+		this.rowModels = options.rowModels
 	}
 
 	async translate() { 
@@ -60,7 +73,7 @@ class TranslateSelection {
 	}
 
 	async* translateRowsBatch(texts: string[]) { 
-		const promises = this.models.map(model => { 
+		const promises = this.rowModels.map(model => { 
 			if (!model) { return Promise.resolve([""]) }
 			return this.client.generate(texts, model)
 			.catch(e => { //alert(e.stack)
@@ -78,32 +91,22 @@ class TranslateSelection {
 		}
 	}
 
-	async* translateRows(texts: string[], cells: Cell[][]) { 
-		for (let i=0; i<texts.length; i++) {
-			const result = await this.translateRow(texts[i], cells[i])
-			if (result) { yield result }
+	async translateRows(entries: [string, Cell][], model: string) { 
+		for (const entry of entries) {
+			this.translateRow(entry, model)
 		}
 	}
 
-	async translateRow(text: string, cells: Cell[]) { 
-		const promises = cells.map(cell => { 
-			const model = this.models[cell.col]
-			if (!cell || !model) { return Promise.resolve("") }
-			return this.client.generate([text], model)
-			.then(result => result[0])
-			.catch(e => { //alert(e.stack)
-				return ""
-			})
+	async translateRow([text, cell]: [string, Cell], model: string) { 
+		if (!cell || !model || !text) { return }
+		const response = await this.client.generate([text], model)
+		.then(result => result[0])
+		.catch(e => { //alert(e.stack)
+			return ""
 		})
 
-		const responses = await Promise.all(promises)
-		if (responses.length) { 
-			return { 
-				inputText: text,
-				output: responses,
-				index: trans.data.findIndex(row => row[0] === text)
-			}
-		}
+		const index = trans.data.findIndex(row => row[0] === text)
+		trans.data[index][cell.col] = response
 	}
 
 	applyTranslationToTable(result: TranslationResult) { 
@@ -111,6 +114,25 @@ class TranslateSelection {
 		trans.data[index] = [inputText, ...output];
 		trans.grid.render();
 		trans.evalTranslationProgress();
+	}
+
+	async translateSelectedCells(model: string) { 
+		const thisData = trans.grid.getData();
+		const rowPool = common.gridSelectedCells() || [];
+		const tempTextPool: Record<string, Cell> = {};
+		for (const cell of rowPool) { 
+			if (cell.col === trans.keyColumn) { continue }
+			const text = thisData[cell.row][trans.keyColumn];
+			if (text && !(text in tempTextPool)) { 
+				tempTextPool[text] = cell
+				trans.data[cell.row][cell.col] = "Fetching..."
+			}
+		}
+
+		if (!Object.keys(tempTextPool).length) return;
+		trans.grid.render();
+		this.translateRows(Object.entries(tempTextPool), model)
+		//trans.textEditorSetValue(trans.getTextFromLastSelected());
 	}
 
 }
