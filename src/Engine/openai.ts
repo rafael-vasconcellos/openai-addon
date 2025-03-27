@@ -168,6 +168,7 @@ class EngineClient extends CustomEngine {
                     if (key === "base_url" && value === this.default_base_url && !this.g4f_server_status) { 
                         this.setup()
                     }
+                    if (key === "rows_translation_models") { this.setRowsTranslationContextMenu() }
                     this.update(key, typeof value === "string"? value : "") 
                 }
             }
