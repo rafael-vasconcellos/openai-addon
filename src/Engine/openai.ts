@@ -69,7 +69,7 @@ class OpenAIClient extends OpenAI {
             //query: {  }
         }).catch(e => { 
             throw new TranslationFailException({
-                message: "Error while fetching.",
+                message: `Error while fetching: ${e}`,
                 status: 500
             })
         })
