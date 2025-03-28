@@ -22,6 +22,13 @@ for (let i=0; i<batchSize; i++) {
     responseSchema[`${i}`] = z.string().nonempty()
 }
 
+const g4f_models = [
+    "gpt-4o", "gpt-4o-mini", "o1", "o1-mini", 
+    "deepseek-chat", "deepseek-v3", "deepseek-R1", "command-r-plus", "qwen-2.5-72b", 
+    "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-thinking", 
+    "claude-3.5-sonnet", "claude-3-opus", 
+]
+
 function getPythonPath() { return new Promise<string>(resolve => { 
     exec("where python", (error, stdout, stderr) => {
         if (error || stderr) { 
@@ -85,12 +92,6 @@ class OpenAIClient extends OpenAI {
 
 
 class EngineClient extends CustomEngine { 
-    public static models = [
-        "gpt-4o", "gpt-4o-mini", "o1", "o1-mini", 
-        "deepseek-chat", "deepseek-v3", "deepseek-R1", "command-r-plus", "qwen-2.5-72b", 
-        "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-thinking", 
-        "claude-3.5-sonnet", "claude-3-opus", 
-    ]
     private readonly default_base_url = "http://localhost:1337/v1"
     public g4f_server_status = false
     private interval?: NodeJS.Timeout | null
@@ -147,7 +148,6 @@ class EngineClient extends CustomEngine {
                         description: "Choose the model.",
                         default: "gpt-4o",
                         required: false,
-                        enum: EngineClient.models
                     }
                 },
 
@@ -224,7 +224,7 @@ class EngineClient extends CustomEngine {
             rowModels: this.rows_translation_models.split(','),
             package_name: this.package_name,
             package_title: this.package_title,
-            models: EngineClient.models
+            //models: EngineClient.models
         })
     }
 
