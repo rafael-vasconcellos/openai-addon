@@ -47,12 +47,13 @@ class CustomEngine {
     get api_key(): string | null { return this.getEngine()?.getOptions('api_key') ?? null }
     get target_language(): string { return this.getEngine()?.getOptions('target_language') ?? "English - US" }
     get api_type(): "free" | "pro" { return this.getEngine()?.getOptions('api_type') ?? "free" }
+    get timeout(): number { return this.getEngine()?.getOptions('timeout') ?? 0 }
 
     public update(option: string, value: any) { 
         this.getEngine().update(option, value)
     }
-    public getEngine() { return this.engine }
     public init() { this.engine.init() }
+    public getEngine() { return this.engine }
     public abort() { 
         trans.abortTranslation()
         this.clear()
@@ -116,15 +117,28 @@ class CustomEngine {
     }
 
     protected async buildTranslationResult(texts: string[]): Promise<TranslatorEngineResults> { 
-        const translated_texts = await this.fetcher(texts)
-        const result = {
+        const promise = this.fetcher(texts).then(response => ({
 			sourceText: texts.join(),
-			translationText: translated_texts.join(),
+			translationText: response.join(),
 			source: texts,
-			translation: translated_texts
-		}
+			translation: response
+		}))
+        if (!this.timeout) { return await promise }
 
-        return result
+
+        let timeoutId: NodeJS.Timeout
+        const timeoutPromise = new Promise<any>((_, reject) => { 
+            timeoutId = setTimeout(() => { 
+                reject(new TranslationFailException({ 
+                    status: 200,
+                    message: "Request timed out!"
+                }))
+            }, this.timeout * 1000)
+        })
+        return Promise.race([
+            promise.finally(() => clearTimeout(timeoutId)), // Limpa o timeout se a promise original resolver/rejeitar
+            timeoutPromise
+        ])
     }
 
     protected formatInput(texts: string[], n: number): (string | string[])[] { 

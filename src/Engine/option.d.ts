@@ -12,5 +12,6 @@ declare type TranslationEngineOptions = {
     targetUrl?: string;
     languages?: {[id: string]: string};
     optionsForm?: TranslationEngineOptionForm;
+    [key: string]: any
 }
 
