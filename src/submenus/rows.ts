@@ -148,7 +148,7 @@ function createSubmenu({ package_name, rowModels, clientBuild, package_title, mo
 			]
 		}
 	} : { 
-		name: "Translate entire selected rows",
+		name: `Translate entire selected rows (${package_title})`,
 		callback: translateSelection.translateSelectedRows.bind(translateSelection)
 	}
 
