@@ -17,8 +17,8 @@ interface TranslationResult {
 }
 
 interface CreateSubmenuInit extends SelectionTranslatorOptions { 
-	models: string[]
 	package_title: string
+	models?: string[]
 }
 
 
@@ -132,9 +132,7 @@ function createSubmenu({ package_name, rowModels, clientBuild, package_title, mo
 		rowModels,
 		clientBuild,
 	})
-
-	return { 
-		name: package_title,
+	const submenu: Partial<ContextMenuItem> = models?.length? { 
 		submenu: { 
 			items: [ 
 				{ 
@@ -149,6 +147,15 @@ function createSubmenu({ package_name, rowModels, clientBuild, package_title, mo
 				}))
 			]
 		}
+	} : { 
+		name: "Translate entire selected rows",
+		callback: translateSelection.translateSelectedRows.bind(translateSelection)
+	}
+
+
+	return { 
+		name: package_title,
+		...submenu
 	}
 }
 
