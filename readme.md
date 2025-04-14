@@ -1,6 +1,6 @@
 # About
 
-This addon adds support for OpenAI's/g4f AI models on translator++.
+This addon adds support for any AI Provider that has an API compatible with OpenAI on translator++, you can use the official OpenAI API, g4f, openrouter, etc.
 
 ## Features
 
@@ -13,6 +13,7 @@ Besides the tradicional engine in the Translation options, there's also a new it
 <strong style="color:red">Warning: </strong>The translate selection section will translate everything in one request, if you select too much text, the translation's quality will be worse, be careful.
 
 ## Build
+
 ```bash
 # build the addon
 $ npm run build
@@ -23,7 +24,10 @@ $ npm run build
 $ npm run pack
 ```
 
-The output of the python pack will vary according to the machine who built it, os version and etc. You can skip this by running the g4f local API manually, or by specifiying a remote provider.
+The output of the python pack will vary according to the machine who built it, os version and etc. You can skip this by running the g4f local API manually, or by specifiying a remote provider.  
+<br>
+<strong style="color:red">Important: </strong>keep your g4f package updated. since this stuff changes frequently
 
 ## Install
+
 copy ./dist/openai to translator++/www/addons
