@@ -4,7 +4,7 @@ This addon adds support for any AI Provider that has an API compatible with Open
 
 ## Features
 
-Besides the tradicional engine in the Translation options, there's also a new item in the context menu containing the following:  
+Besides the traditional engine in the Translation options, there's also a new item in the context menu containing the following:  
 <br>
 **Translate selected rows entirely:** Each column will contain a translation from a different model. You can choose the models in the addon options.  
 <br>
@@ -30,4 +30,4 @@ The output of the python pack will vary according to the machine who built it, o
 
 ## Install
 
-copy ./dist/openai to translator++/www/addons
+copy the _"openai"_ to translator++/www/addons
