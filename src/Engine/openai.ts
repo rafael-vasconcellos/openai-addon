@@ -75,7 +75,7 @@ class OpenAIClient extends OpenAI {
         })
 
         const response_text = response?.choices?.[0]?.message?.content ?? ""
-        const result = await parseResponse(response_text)
+        const result = await parseResponse(response_text, texts.length)
         if (result.length !== texts.length || !(result instanceof Array)) { 
             const message = result.length === 0? 
 				"Failed to parse: " + response_text 

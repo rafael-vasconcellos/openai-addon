@@ -19,25 +19,27 @@ const systemPrompt = (targetLanguage: string) => `
 
 const userPrompt = (texts: string[]) => { 
     const requestObj: Record<string, string> = {}
-    texts.forEach( (text, i) => requestObj[i] = text )
+    texts.forEach( (text, i) => requestObj[i.toString()] = text )
 
 return `
     Now translate this: 
 	    ${JSON.stringify(requestObj)}
 `}
 
-async function parseResponse(response: string) { 
-    const output: string[] = [];
-    const jsonString = response?.replace(/.*?\s({.*}).*/s, '$1');
-    const repairedString = await parseJsonString(jsonString).catch( () => jsonString );
+async function parseResponse(response: string, length?: number) { 
+    const output: string[] = length? Array(length).fill(null) : [];
+    const jsonString = response?.replace(/.*?({.*}(?=\s|$)|{.*)/s, '$1');
+    const repairedString = await parseJsonString(jsonString)
+    .then(s => s.trim()).catch( () => jsonString );
     try { 
         const parsed = JSON.parse(repairedString);
-        (Object.entries(parsed) as ([string, string])[])
-        .forEach(entry => { 
+        Object.entries<string>(parsed).forEach(entry => { 
             const [ key, value ] = entry
-            output[Number(key)] = value.replaceAll("\n", '').trim().replace(/(.*),$/, '$1').replace(/.*\「(.*?)\」.*/, "$1")
+            const filteredText = value.replaceAll("\n", '').trim().replace(/(.*),$/, '$1').replace(/.*\「(.*?)\」.*/, "$1")
+            output[Number(key)] = filteredText
         });
-        return output;
+        return length && !jsonString.endsWith("}")? 
+            output.map(text => text ?? "") : output.filter(text => text !== null);
 
     } catch (e) { return [] as string[] }
 }
