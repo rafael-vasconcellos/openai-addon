@@ -99,7 +99,7 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true, /* Skip type checking all .d.ts files. */
-    "outDir": "./dist/openai",
+    "outDir": "./dist/www/addons/openai",
     "baseUrl": "./",
     "paths": { 
       "jsonrepair": ["./lib/jsonrepair"],
