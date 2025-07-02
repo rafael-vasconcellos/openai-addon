@@ -42,6 +42,7 @@ class CustomEngine {
         this.engine.translate = this.translate.bind(this)
         this.engine.abort = this.clear.bind(this)
         this.engine.fetcher = this.fetcher.bind(this)
+        //this.engine.translateAll = this.translateAll.bind(this)
     }
 
     get api_key(): string | null { return this.getEngine()?.getOptions('api_key') ?? null }
@@ -63,7 +64,28 @@ class CustomEngine {
         throw new Error('Non implemented method!')
     }
 
-    public translate(texts: string[], options: TranslatorOptions): void { 
+    public async translateAll(options: Partial<TranslatorOptions> = {}) { 
+        const pace = 25
+        const files = trans.getAllfiles()
+        for (const file in files) { 
+            const fileData = trans.project?.files?.[file]?.data
+            for (let i=0; i<fileData.length; i+=pace) { 
+                const batch = fileData.slice(i, i+pace).map(rows => rows[0])
+                await this.translate(batch, { 
+                    ...options,
+                    onAfterLoading: async(result) => { 
+                        this.applyTranslationToTable(result, fileData)
+                        if (options.saveOnEachBatch) {
+                            ui.log("Saving your project");
+                            await trans.save();
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    public translate(texts: string[], options: Partial<TranslatorOptions>): void { 
         if (!this.api_key) { 
             alert('No API key specified!')
             return this.abort()
@@ -71,12 +93,12 @@ class CustomEngine {
 
         ui.log("\n\n" + "Batch size: " + texts.length);
         this.execute(texts)
-            .then(result => options.onAfterLoading(result))
+            .then(result => options.onAfterLoading && options.onAfterLoading(result))
             .catch( (obj: TranslationFailException) => { 
                 if (!obj.status) { ui.log(obj.stack) }
-                options.onError(obj, undefined, obj.message)
+                options.onError && options.onError(obj, undefined, obj.message)
             })
-            .finally(options.always())
+            .finally(() => options.always && options.always())
     }
 
     private mockTranslate(texts: string[]) { return new Promise(resolve => { 
@@ -140,6 +162,18 @@ class CustomEngine {
             timeoutPromise
         ])
     }
+
+    private applyTranslationToTable(result: TranslatorEngineResults, fileData: string[][]) { 
+        for (let i=0; i<result.source.length; i++) { 
+            const inputText = result?.source?.[i]
+            const index = fileData.findIndex(row => row[0] === inputText)
+            const output = Array(3).fill('')
+            output[this.getEngine().targetColumn ?? 0] = result?.translation?.[i]
+            fileData[index] = [inputText, ...output];
+        }
+        trans.grid.render();
+        trans.evalTranslationProgress();
+	}
 
     protected formatInput(texts: string[], n: number): (string | string[])[] { 
         const result = []
