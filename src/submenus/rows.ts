@@ -83,25 +83,6 @@ class SelectionTranslator {
 		}
 	}
 
-	async translateRows(texts_map: Record<string, Cell>, model: string) { 
-		const texts = Object.keys(texts_map)
-		const response = await this.client.generate(texts, model)
-		texts.forEach((text, i) => { 
-			const index = trans.data.findIndex(row => row[0] === text)
-			const cell = texts_map[text]
-			if (index>=0 && cell) { 
-				trans.data[index][cell.col] = response[i]
-			}
-		})
-	}
-
-	applyTranslationToTable(result: TranslationResult) { 
-		const { index, output, inputText } = result;
-		trans.data[index] = [inputText, ...output];
-		trans.grid.render();
-		trans.evalTranslationProgress();
-	}
-
 	async translateSelectedCells(model: string) { 
 		const thisData = trans.grid.getData();
 		const rowPool = common.gridSelectedCells() || [];
@@ -121,6 +102,25 @@ class SelectionTranslator {
 		trans.grid.render();
 		trans.evalTranslationProgress();
 		//trans.textEditorSetValue(trans.getTextFromLastSelected());
+	}
+
+	async translateRows(texts_map: Record<string, Cell>, model: string) { 
+		const texts = Object.keys(texts_map)
+		const response = await this.client.generate(texts, model)
+		texts.forEach((text, i) => { 
+			const index = trans.data.findIndex(row => row[0] === text)
+			const cell = texts_map[text]
+			if (index>=0 && cell) { 
+				trans.data[index][cell.col] = response[i]
+			}
+		})
+	}
+
+	applyTranslationToTable(result: TranslationResult) { 
+		const { index, output, inputText } = result;
+		trans.data[index] = [inputText, ...output];
+		trans.grid.render();
+		trans.evalTranslationProgress();
 	}
 
 }
