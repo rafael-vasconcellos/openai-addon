@@ -28,14 +28,25 @@ declare var trans: {
     getTl(): string;
 
     abortTranslation(): void
+    getAllfiles(): { 
+        [key: string]: any
+    }
     prototype: { 
         translateAllByRows(translator: TranslatorEngine, options): void
+    }
+    project: { 
+        files: { 
+            [key: string]: { 
+                data: string[][]
+            }
+        }
     }
     grid: Grid
     data: string[][]
     gridContextMenu: Record<string, ContextMenuItem>
     keyColumn: number
     translator: TranslatorEngine[]
+    save(): void
     evalTranslationProgress(): void
     getTextFromLastSelected(): string
     textEditorSetValue(s: string): void

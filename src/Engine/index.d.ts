@@ -42,6 +42,7 @@ declare class TranslatorEngine {
     pause(): void;
     resume(): void;
 
+    targetColumn: number
     targetUrl: string;
     targetUrls: Array<string>;
     isDisabled: boolean
@@ -61,6 +62,7 @@ declare type TranslatorOptions = {
     progress: (perc: number) => void;
     sl: string;
     tl: string;
+    saveOnEachBatch: boolean;
 }
 
 declare type ErrorEvt = { status?: number | string }
