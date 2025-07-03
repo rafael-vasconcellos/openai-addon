@@ -30,7 +30,7 @@ async function parseResponse(response: string, length?: number) {
     const output: string[] = length? Array(length).fill(null) : [];
     const jsonString = response?.replace(/.*?({.*}(?=\s|$)|{.*)/s, '$1');
     const repairedString = await parseJsonString(jsonString)
-    .then(s => s.trim()).catch( () => jsonString );
+    .then(s => s.trim().replaceAll(/\\"/g, "'")).catch(() => jsonString);
     try { 
         const parsed = JSON.parse(repairedString);
         Object.entries<string>(parsed).forEach(([ key, value ]) => { 
@@ -40,7 +40,11 @@ async function parseResponse(response: string, length?: number) {
         return length && !jsonString.endsWith("}")? 
             output.map(text => text ?? "") : output.filter(text => text !== null);
 
-    } catch (e) { return [] as string[] }
+    } catch (e: any) { 
+        ui.log("Failed to parse: " + repairedString)
+        //ui.log(e.stack)
+        return [] as string[] 
+    }
 }
 
 async function parseJsonString(text: string) { 

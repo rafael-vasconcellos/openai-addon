@@ -78,7 +78,7 @@ class OpenAIClient extends OpenAI {
         const result = await parseResponse(response_text, texts.length)
         if (result.length !== texts.length || !(result instanceof Array)) { 
             const message = result.length === 0? 
-				"Failed to parse: " + response_text 
+				"Failed to parse JSON."
 				: `Unexpected error: length ${result.length} out of ${texts.length}.` + '\n\n' + response_text;
             throw new TranslationFailException({
                 message,
