@@ -19,7 +19,7 @@ const scriptPath = path.join(scriptDirPath, 'g4f_inference.pyz')
 const batchSize = 25
 const responseSchema: Record<string, any> = {}
 for (let i=0; i<batchSize; i++) { 
-    responseSchema[`${i}`] = z.string().nonempty()
+    responseSchema[`${i}`] = z.string()//.nonempty()
 }
 
 const g4f_models = [

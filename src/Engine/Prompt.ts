@@ -33,10 +33,9 @@ async function parseResponse(response: string, length?: number) {
     .then(s => s.trim()).catch( () => jsonString );
     try { 
         const parsed = JSON.parse(repairedString);
-        Object.entries<string>(parsed).forEach(entry => { 
-            const [ key, value ] = entry
+        Object.entries<string>(parsed).forEach(([ key, value ]) => { 
             const filteredText = value.replaceAll("\n", '').trim().replace(/(.*),$/, '$1').replace(/.*\「(.*?)\」.*/, "$1")
-            output[Number(key)] = filteredText
+            if (filteredText.length) { output[Number(key)] = filteredText }
         });
         return length && !jsonString.endsWith("}")? 
             output.map(text => text ?? "") : output.filter(text => text !== null);
