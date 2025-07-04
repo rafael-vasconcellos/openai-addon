@@ -79,13 +79,17 @@ class CustomEngine {
                             ui.log("Saving your project");
                             await trans.save();
                         }
+                    },
+                    onError: (e: ErrorEvt, _: any, message: string) => { 
+                        ui.log("Status: " + e.status)
+                        ui.log(message)
                     }
                 })
             }
         }
     }
 
-    public translate(texts: string[], options: Partial<TranslatorOptions>) { 
+    public async translate(texts: string[], options: Partial<TranslatorOptions>) { 
         const start_time = performance.now() / 1000
         if (!this.api_key) { 
             alert('No API key specified!')
@@ -93,7 +97,7 @@ class CustomEngine {
         }
 
         ui.log("\n\n" + "Batch size: " + texts.length);
-        return this.execute(texts)
+        return await this.execute(texts)
             .then(result => { 
                 const end_time = performance.now() / 1000
                 ui.log(`Batch done in ${end_time - start_time}s.`)

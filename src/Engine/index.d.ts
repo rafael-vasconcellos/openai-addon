@@ -65,7 +65,10 @@ declare type TranslatorOptions = {
     saveOnEachBatch: boolean;
 }
 
-declare type ErrorEvt = { status?: number | string }
+declare type ErrorEvt = { 
+    status?: number | string 
+    message?: string
+}
 
 declare type TranslatorEngineResults = {
     sourceText: string;
