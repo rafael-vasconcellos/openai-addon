@@ -75,7 +75,7 @@ class OpenAIClient extends OpenAI {
         })
 
         const response_text = response?.choices?.[0]?.message?.content ?? ""
-        const result = await parseResponse(response_text, texts.length)
+        let result = await parseResponse(response_text, texts.length)
         if (result.length !== texts.length || !(result instanceof Array)) { 
             const message = result.length === 0? 
 				"Failed to parse JSON."
@@ -84,7 +84,8 @@ class OpenAIClient extends OpenAI {
                 message,
                 status: 200
             }) 
-        }
+
+        } //else if (result.length > texts.length) { result = result.slice(0, texts.length) }
 
         return result
     }
