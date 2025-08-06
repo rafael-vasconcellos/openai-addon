@@ -16,10 +16,12 @@ const { createSubmenu } = require("../submenus/rows") as RowsModule
 const scriptDirPath = path.resolve('www/addons/openai/lib')
 const scriptPath = path.join(scriptDirPath, 'g4f_inference.pyz')
 
-const batchSize = 25
-const responseSchema: Record<string, any> = {}
-for (let i=0; i<batchSize; i++) { 
-    responseSchema[`${i}`] = z.string().optional()//.nonempty()
+function getResponseSchema(batchSize: number = 25) {
+    const responseSchema: Record<string, any> = {}
+    for (let i=0; i<batchSize; i++) { 
+        responseSchema[`${i}`] = z.string().optional()//.nonempty()
+    }
+    return responseSchema
 }
 
 const g4f_models = [
@@ -64,7 +66,7 @@ class OpenAIClient extends OpenAI {
                 }
             ],
             temperature: 0,
-            response_format: zodResponseFormat(z.object(responseSchema), 'json_schema'),
+            response_format: zodResponseFormat(z.object(getResponseSchema(texts.length)), 'json_schema'),
         }, { 
             //query: {  }
         }).catch(e => { 
@@ -104,7 +106,7 @@ class EngineClient extends CustomEngine {
     get rows_translation_models(): string { return this.getEngine()?.getOptions('rows_translation_models') || 'command-r-plus,gemini-2.0-flash,deepseek-v3,gpt-4o' }
 
     constructor(thisAddon: Addon) { 
-        trans.config.maxRequestLength = batchSize
+        trans.config.maxRequestLength = 200
         super({ 
             id: thisAddon.package.name,
             name: thisAddon.package.title,
@@ -112,8 +114,8 @@ class EngineClient extends CustomEngine {
             version: thisAddon.package.version,
             author: typeof thisAddon.package.author === 'object'? 
                 thisAddon.package.author.name : thisAddon.package.author ?? '',
-            maxRequestLength: trans.config.maxRequestLength,
-            batchDelay: 1, // 0 is a falsy value, it'll be reverted to the default value (5000)
+            // maxRequestLength: batchSize,
+            batchDelay: 1, // 0 is a falsy value, i'd be reverted to the default value (5000)
             optionsForm: { 
                 schema: { 
                     base_url: { 
@@ -123,17 +125,31 @@ class EngineClient extends CustomEngine {
                         required: true,
                         default: "http://localhost:1337/v1"
                     },
+                    api_key: { 
+                        type: "string",
+                        title: "API Key",
+                        description: "If you're using a provider that requires a key, insert it here.",
+                        required: false
+                    },
+                    maxRequestLength: { 
+                        type: "number",
+                        title: "Batch size",
+                        description: "Number of lines to be translated per request.",
+                        required: false,
+                        default: 25
+                    },
+                    model_name: { 
+                        type: "string",
+                        title: "Model name",
+                        description: "Choose the model.",
+                        default: "gpt-4o",
+                        required: false,
+                    },
                     target_language: { 
                         type: "string",
                         title: "Target language",
                         description: "Choose the target language.",
                         default: "English - US",
-                        required: false
-                    },
-                    api_key: { 
-                        type: "string",
-                        title: "API Key",
-                        description: "If you're using a provider that requires a key, insert it here.",
                         required: false
                     },
                     rows_translation_models: { 
@@ -143,25 +159,20 @@ class EngineClient extends CustomEngine {
                         required: false,
                         default: 'command-r-plus,gemini-2.0-flash,deepseek-v3,gpt-4o'
                     },
-                    model_name: { 
-                        type: "string",
-                        title: "Model name",
-                        description: "Choose the model.",
-                        default: "gpt-4o",
-                        required: false,
-                    }
                 },
 
                 form: [ 
-                    { 
+                    {
                         key: "base_url",
-                    }, { 
-                        key: "model_name"
                     }, {
                         key: "api_key"
-                    }, { 
+                    }, {
+                        key: "model_name"
+                    }, {
+                        key: "maxRequestLength"
+                    }, {
                         key: "target_language"
-                    }, { 
+                    }, {
                         key: "rows_translation_models"
                     }, 
                 ],
@@ -170,7 +181,7 @@ class EngineClient extends CustomEngine {
                         this.setup()
                     }
                     if (key === "rows_translation_models") { this.setRowsTranslationContextMenu() }
-                    this.update(key, typeof value === "string"? value : "") 
+                    this.update(key, value && typeof value !== "object"? value : "")
                 }
             }
 

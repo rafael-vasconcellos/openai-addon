@@ -5,7 +5,7 @@ declare type TranslationEngineOptions = {
     version: string;
     description?: string;
     batchDelay?: number;
-    maxRequestLength: number;
+    maxRequestLength?: number;
     skipReferencePair?: boolean;
     lineDelimiter?: string;
     mode?: "rowByRow" | "lineByLine" | string;

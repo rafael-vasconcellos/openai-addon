@@ -100,7 +100,7 @@ class CustomEngine {
         return await this.execute(texts)
             .then(result => { 
                 const end_time = performance.now() / 1000
-                ui.log(`Batch done in ${end_time - start_time}s.`)
+                ui.log(`Batch done in ${(end_time - start_time).toFixed(2)}s.`)
                 if (!options.onAfterLoading) { throw new TranslationFailException({ 
                     status: 200,
                     message: 'Fatal error: "onAfterLoading" method not received!'
