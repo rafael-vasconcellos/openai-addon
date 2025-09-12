@@ -28,7 +28,7 @@ return `
 
 async function parseResponse(response: string, length?: number) { 
     const output: string[] = length? Array(length).fill(null) : [];
-    const jsonString = response?.replace(/.*?({.*}(?=\s|$)|{.*)/s, '$1');
+    const jsonString = response?.replace(/[\s\S]*?({[\s\S]*)/, '$1').replace(/[\s\S]*?({[\s\S]*})[\s\S]*/m, '$1');
     const repairedString = await parseJsonString(jsonString)
     .then(s => s.trim().replaceAll(/\\"/g, "'")).catch(() => jsonString);
     try { 
@@ -42,6 +42,7 @@ async function parseResponse(response: string, length?: number) {
 
     } catch (e: any) { 
         ui.log("Failed to parse: " + repairedString)
+        ui.log("Original string: " + jsonString + "\n")
         //ui.log(e.stack)
         return [] as string[] 
     }

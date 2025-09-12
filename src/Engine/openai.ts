@@ -67,6 +67,7 @@ class OpenAIClient extends OpenAI {
             ],
             temperature: 0,
             response_format: zodResponseFormat(z.object(getResponseSchema(texts.length)), 'json_schema'),
+            //provider: "OpenaiChat Copilot GithubCopilot"
         }, { 
             //query: {  }
         }).catch(e => { 
@@ -186,7 +187,7 @@ class EngineClient extends CustomEngine {
             }
 
         })
-        this.setup()
+        //this.setup()
         this.package_name = thisAddon.package.name
         this.package_title = thisAddon.package.title
         this.setRowsTranslationContextMenu()
@@ -217,6 +218,7 @@ class EngineClient extends CustomEngine {
             this.interval = setInterval(() => { 
                 fetch(this.base_url).then(response => { 
                     if (response.ok) { 
+                        ui.log("G4F server started!")
                         clearInterval(this.interval!)
                         this.interval = null
                         this.g4f_server_status = true
