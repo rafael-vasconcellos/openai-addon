@@ -97,12 +97,13 @@ class OpenAIClient extends OpenAI {
 
 class EngineClient extends CustomEngine { 
     private readonly default_base_url = "http://localhost:1337/v1"
+    private readonly api_placeholder = "Placeholder"
     public g4f_server_status = false
     private interval?: NodeJS.Timeout | null
     public readonly package_name: string
     public readonly package_title: string
-    get model_name(): string { return this.getEngine()?.getOptions('model_name') || "gpt-4o" }
-    get api_key(): string { return this.getEngine()?.getOptions('api_key') || "Placeholder" }
+    get model_name(): string { return this.getEngine()?.getOptions('model_name') || "gpt-4.1" }
+    get api_key(): string { return this.getEngine()?.getOptions('api_key') || this.api_placeholder }
     get base_url(): string { return this.getEngine()?.getOptions('base_url') || this.default_base_url }
     get rows_translation_models(): string { return this.getEngine()?.getOptions('rows_translation_models') || 'command-r-plus,gemini-2.0-flash,deepseek-v3,gpt-4o' }
 
@@ -199,7 +200,7 @@ class EngineClient extends CustomEngine {
         })
         const client = new OpenAIClient({ 
             baseURL: this.base_url,
-            apiKey: this.api_key,
+            apiKey: this.api_key!==this.api_placeholder? this.api_key : undefined,
         })
 
         return await client.generate(texts, model, this.target_language)
