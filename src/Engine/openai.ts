@@ -67,7 +67,8 @@ class OpenAIClient extends OpenAI {
             ],
             temperature: 0,
             response_format: zodResponseFormat(z.object(getResponseSchema(texts.length)), 'json_schema'),
-            //provider: "OpenaiChat Copilot GithubCopilot"
+            //provider: "OpenaiChat Copilot GithubCopilot",
+			//chat_template_kwargs: {"enable_thinking":true,"clear_thinking":false},
         }, { 
             //query: {  }
         }).catch(e => { 
