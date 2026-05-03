@@ -1,17 +1,22 @@
 import fs from 'fs';
 import path from 'path';
 import * as esbuild from 'esbuild';
+import { config } from 'dotenv';
 import { downloadPython, downloadFile } from './python.download.mjs'
 //import _package from './package.json' assert { type: "json" };
 
 
-const distDir = './dist/www/addons/openai/';
+config()
+const distDir = './dist/www/addons/openai/'
 const DOWNLOAD_PYTHON = false
+const CUSTOM_TRANSJS = ['true', '1', 'yes'].includes(
+    process.env.CUSTOM_TRANSJS?.toLowerCase() ?? 'true'
+)
 
 const _package = JSON.parse(fs.readFileSync('./package.json'))
 const entryPoints = Object.keys(_package.dependencies).map(dep => 
     path.resolve('node_modules', dep)
-).filter(dep => !dep.endsWith('openai'));
+).filter(dep => !dep.endsWith('openai'))
 
 const build_options = {
     entryPoints, 
@@ -43,10 +48,12 @@ Promise.all([ esbuild.build(build_options), esbuild.build(openai_options) ])
         { src: './icon.ico', dest: distDir + 'icon.ico' },
     ];
 
-    downloadFile(
-        "https://gist.githubusercontent.com/rafael-vasconcellos/6ec7af6c2601e0aa428b1ab727d459ac/raw/36df02e20aba2b3bfe97648309ff96d2ee7b97c2/trans.js", 
-        path.resolve("./dist/www/js/trans.js")
-    )
+    if (CUSTOM_TRANSJS) {
+        downloadFile(
+            "https://gist.githubusercontent.com/rafael-vasconcellos/6ec7af6c2601e0aa428b1ab727d459ac/raw/36df02e20aba2b3bfe97648309ff96d2ee7b97c2/trans.js", 
+            path.resolve("./dist/www/js/trans.js")
+        )
+    }
 
     files.forEach(file => {
         fs.copyFile(path.resolve(file.src), path.resolve(file.dest), (err) => {
