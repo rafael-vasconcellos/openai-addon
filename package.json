@@ -33,6 +33,6 @@
     "tsc-alias": "^1.8.11",
     "typescript": "^6.0.0",
     "unzipper": "^0.12.3",
-    "vitest": "^3.0.9"
+    "vitest": "^4.1.0"
   }
 }
