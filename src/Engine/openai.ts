@@ -24,13 +24,6 @@ function getResponseSchema(batchSize: number = 25) {
     return responseSchema
 }
 
-const g4f_models = [
-    "gpt-4o", "gpt-4o-mini", "o1", "o1-mini", 
-    "deepseek-chat", "deepseek-v3", "deepseek-R1", "command-r-plus", "qwen-2.5-72b", 
-    "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-thinking", 
-    "claude-3.5-sonnet", "claude-3-opus", 
-]
-
 function getPythonPath() { return new Promise<string>(resolve => { 
     exec("where python", (error, stdout, stderr) => {
         if (error || stderr) { 
@@ -109,7 +102,6 @@ class EngineClient extends CustomEngine {
     get rows_translation_models(): string { return this.getEngine()?.getOptions('rows_translation_models') || 'command-r-plus,gemini-2.0-flash,deepseek-v3,gpt-4o' }
 
     constructor(thisAddon: Addon) { 
-        trans.config.maxRequestLength = 200
         super({ 
             id: thisAddon.package.name,
             name: thisAddon.package.title,
@@ -117,7 +109,7 @@ class EngineClient extends CustomEngine {
             version: thisAddon.package.version,
             author: typeof thisAddon.package.author === 'object'? 
                 thisAddon.package.author.name : thisAddon.package.author ?? '',
-            // maxRequestLength: batchSize,
+            maxRequestLength: 1100,
             batchDelay: 1, // 0 is a falsy value, i'd be reverted to the default value (5000)
             optionsForm: { 
                 schema: { 
@@ -134,7 +126,7 @@ class EngineClient extends CustomEngine {
                         description: "If you're using a provider that requires a key, insert it here.",
                         required: false
                     },
-                    maxRequestLength: { 
+                    batch_size: { 
                         type: "number",
                         title: "Batch size",
                         description: "Number of lines to be translated per request.",
@@ -172,7 +164,7 @@ class EngineClient extends CustomEngine {
                     }, {
                         key: "model_name"
                     }, {
-                        key: "maxRequestLength"
+                        key: "batch_size"
                     }, {
                         key: "target_language"
                     }, {
@@ -184,15 +176,21 @@ class EngineClient extends CustomEngine {
                         this.setup()
                     }
                     if (key === "rows_translation_models") { this.setRowsTranslationContextMenu() }
+                    if (key === "batch_size") {
+                        this.update('maxRequestLength', (value as number)*22)
+                    }
                     this.update(key, value && typeof value !== "object"? value : "")
                 }
             }
 
         })
-        //this.setup()
+
         this.package_name = thisAddon.package.name
         this.package_title = thisAddon.package.title
         this.setRowsTranslationContextMenu()
+        // this.getEngine().maxRequestLength = default 1100
+        if (this.getEngine().getOptions().maxRequestLength < 1100)
+            this.update('maxRequestLength', 1100)
     }
 
     public async fetcher(texts: string[], model: string = this.model_name) { 

@@ -16,15 +16,21 @@ interface ITranslationFailExceptionDTO {
 
 
 function replaceNativeFunction() { 
-    const originalFunc = trans.translateAllByRows?.toString()
-    if (originalFunc) { 
-        let customFunc = originalFunc.replace("escapedSentence.length > currentMaxLength", "false")
-        customFunc = customFunc.replace(
+    const originalFuncString = trans.translateAllByRows?.toString()
+    if (originalFuncString) { 
+        let customFuncString = originalFuncString.replace("escapedSentence.length > currentMaxLength", "false")
+        customFuncString = customFuncString.replace(
             "escapedSentence.length+currentRequestLength", 
             "thisTranslator.job.batch[currentBatchID].length+1"
         )
 
-        return eval(`(${customFunc})`)
+        try {
+            const customFunc = eval(`(${customFuncString})`)
+            trans.config.maxRequestLength = 200
+            return customFunc
+        } catch (e) {
+            console.error(e)
+        }
     }
 
     return null
@@ -37,7 +43,7 @@ class CustomEngine {
 
     constructor(engineOptions: TranslationEngineOptions) { 
         engineOptions.mode = "rowByRow"
-        trans.translateAllByRows = replaceNativeFunction() ?? trans.translateAllByRows
+        //trans.translateAllByRows = replaceNativeFunction() ?? trans.translateAllByRows
         this.engine = new TranslatorEngine(engineOptions)
         this.engine.translate = this.translate.bind(this)
         this.engine.abort = this.clear.bind(this)
