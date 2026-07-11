@@ -61,7 +61,7 @@ class OpenAIClient extends OpenAI {
             temperature: 0,
             response_format: zodResponseFormat(z.object(getResponseSchema(texts.length)), 'json_schema'),
             //provider: "OpenaiChat Copilot GithubCopilot",
-			//chat_template_kwargs: {"enable_thinking":true,"clear_thinking":false},
+			//chat_template_kwargs: {"thinking":true, "enable_thinking":true, "clear_thinking":false},
         }, { 
             //query: {  }
         }).catch(e => { 
@@ -109,7 +109,7 @@ class EngineClient extends CustomEngine {
             version: thisAddon.package.version,
             author: typeof thisAddon.package.author === 'object'? 
                 thisAddon.package.author.name : thisAddon.package.author ?? '',
-            maxRequestLength: 1100,
+            maxRequestLength: 440,
             batchDelay: 1, // 0 is a falsy value, i'd be reverted to the default value (5000)
             optionsForm: { 
                 schema: { 
@@ -188,9 +188,9 @@ class EngineClient extends CustomEngine {
         this.package_name = thisAddon.package.name
         this.package_title = thisAddon.package.title
         this.setRowsTranslationContextMenu()
-        // this.getEngine().maxRequestLength = default 1100
-        if (this.getEngine().getOptions().maxRequestLength < 1100)
-            this.update('maxRequestLength', 1100)
+        // this.getEngine().maxRequestLength = default
+        if (this.getEngine().getOptions().maxRequestLength < 440)
+            this.update('maxRequestLength', 440)
     }
 
     public async fetcher(texts: string[], model: string = this.model_name) { 
